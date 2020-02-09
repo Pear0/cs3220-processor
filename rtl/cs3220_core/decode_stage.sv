@@ -1,7 +1,7 @@
 `default_nettype none
-`include opcodes.sv
+`include "opcodes.sv"
 
-module decode
+module decode_stage
 (
     i_clk, i_reset,
     fetch_pc, fetch_inst,
