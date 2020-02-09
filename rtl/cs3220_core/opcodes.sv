@@ -1,0 +1,14 @@
+`ifndef OPCODES_SV
+`define OPCODES_SV
+
+`define OPCODE_BEQ 6'b001000
+`define OPCODE_BLT 6'b001001
+`define OPCODE_BLE 6'b001010
+`define OPCODE_BNE 6'b001011
+
+`define OPCODE_JAL 6'b001100
+
+`define OPCODE_LW 6'h010010
+`define OPCODE_SW 6'h011010
+
+`endif
