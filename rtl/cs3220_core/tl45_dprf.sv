@@ -14,9 +14,10 @@ module tl45_dprf(
 
 reg [31:0] registers[16];
 
+	reg [4:0] i;
 initial begin
-	for (integer i = 0; i < 16; i++)
-		registers[i] = 0;
+	for (i = 0; i < 16; i++)
+		registers[i[3:0]] = 0;
 end
 
 // Read Port 1 selection
@@ -53,4 +54,4 @@ end
 
 `endif
 
-endmodule
+endmodule : tl45_dprf

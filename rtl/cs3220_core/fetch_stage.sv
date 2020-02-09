@@ -52,5 +52,5 @@ module fetch_stage(
         end
     end
 
-endmodule : fetch
+endmodule : fetch_stage
 

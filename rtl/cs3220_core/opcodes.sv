@@ -8,7 +8,7 @@
 
 `define OPCODE_JAL 6'b001100
 
-`define OPCODE_LW 6'h010010
-`define OPCODE_SW 6'h011010
+`define OPCODE_LW 6'b010010
+`define OPCODE_SW 6'b011010
 
 `endif
