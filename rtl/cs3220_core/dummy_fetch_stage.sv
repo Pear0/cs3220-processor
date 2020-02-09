@@ -1,3 +1,5 @@
+`default_nettype none
+
 module fetch(
     input wire i_clk, i_reset,
 

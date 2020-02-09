@@ -1,11 +1,16 @@
+`default_nettype none
+
 module fetch(
     input wire i_clk, i_reset,
 
-    output reg [31:0] o_pc,
-    output reg [31:0] o_inst,
+    output reg [31:0] fetch_pc,
+    output reg [31:0] fetch_inst,
 
     input wire i_branch,
     input wire i_branch_addr,
+
+    input wire decode_flush,
+    input wire decode_stall,
 
     // memory interface
     output wire o_req_addr,
@@ -24,8 +29,8 @@ module fetch(
     assign o_req_addr = i_branch ? i_branch_addr : pc;
     assign o_req_stb = (!branch_stalled || i_branch) && (i_req_valid || !mem_wait);
 
-    assign o_pc = o_req_addr;
-    assign o_inst = i_req_valid ? i_req_data : 0;
+    assign fetch_pc = o_req_addr;
+    assign fetch_inst = i_req_valid ? i_req_data : 0;
 
 
     always @(posedge i_clk) begin
@@ -47,5 +52,5 @@ module fetch(
         end
     end
 
-endmodule
+endmodule : fetch
 

@@ -1,4 +1,4 @@
-
+`default_nettype none
 
 module core(
     input wire i_clk, i_reset
