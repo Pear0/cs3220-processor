@@ -1,6 +1,6 @@
 `default_nettype none
 
-module fetch(
+module fetch_stage(
     input wire i_clk, i_reset,
 
     output reg [31:0] fetch_pc,
