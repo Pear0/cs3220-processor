@@ -7,16 +7,16 @@ module fetch_stage(
     output reg [31:0] fetch_inst,
 
     input wire i_branch,
-    input wire i_branch_addr,
+    input wire [31:0] i_branch_addr,
 
     input wire decode_flush,
     input wire decode_stall,
 
     // memory interface
-    output wire o_req_addr,
-    output wire o_req_stb,
-    input wire i_req_data,
-    input wire i_req_valid
+    output wire [31:0] mem_req_addr,
+    output wire mem_req_stb,
+    input wire [31:0] mem_req_data,
+    input wire mem_req_valid
 );
 
     reg [31:0] pc;
@@ -26,11 +26,11 @@ module fetch_stage(
     initial branch_stalled = 0;
     initial mem_wait = 0;
 
-    assign o_req_addr = i_branch ? i_branch_addr : pc;
-    assign o_req_stb = (!branch_stalled || i_branch) && (i_req_valid || !mem_wait);
+    assign mem_req_addr = i_branch ? i_branch_addr : pc;
+    assign mem_req_stb = (!branch_stalled || i_branch) && !mem_wait;
 
-    assign fetch_pc = o_req_addr;
-    assign fetch_inst = i_req_valid ? i_req_data : 0;
+    assign fetch_pc = mem_req_addr;
+    assign fetch_inst = mem_req_valid ? mem_req_data: 0;
 
 
     always @(posedge i_clk) begin
@@ -41,12 +41,12 @@ module fetch_stage(
         end
         else begin
 
-            if (o_req_stb && !i_req_valid)
+            if (mem_req_stb && !mem_req_valid)
                 mem_wait <= 1;
-            else if (i_req_valid)
+            else if (mem_req_valid)
                 mem_wait <= 0;
 
-            if ((o_req_stb || mem_wait) && i_req_valid) begin
+            if ((mem_req_stb || mem_wait) && mem_req_valid) begin
                 pc <= pc + 4;
             end
         end

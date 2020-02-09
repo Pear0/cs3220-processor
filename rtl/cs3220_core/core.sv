@@ -5,7 +5,14 @@ module core(
 
 );
 
+    wire [31:0] mem_req_addr;
+    wire mem_req_stb;
+    wire [31:0] mem_req_data;
+    wire mem_req_valid;
+
     wire [31:0] fetch_pc, fetch_inst;
+    wire i_branch;
+    wire [31:0] i_branch_addr;
 
     wire [31:0] decode_pc;
     wire [5:0] decode_op;
@@ -30,12 +37,33 @@ module core(
 
     wire exec_stall, exec_flush;
 
+    simple_memory imem(
+        .i_clk,
+        .i_reset,
 
-    dummy_fetch_stage fetch(
+        .mem_req_addr,
+        .mem_req_stb,
+        .mem_req_valid,
+        .mem_req_data
+    );
+
+    fetch_stage fetch(
         .i_clk,
         .i_reset,
         .fetch_pc,
-        .fetch_inst
+        .fetch_inst,
+
+        .i_branch,
+        .i_branch_addr,
+
+        .decode_stall,
+        .decode_flush,
+
+        .mem_req_addr,
+        .mem_req_stb,
+        .mem_req_valid,
+        .mem_req_data
+
     );
 
     decode_stage decode(
@@ -110,9 +138,6 @@ module core(
         .fwd_b_addr,
         .fwd_b_val
     );
-
-
-
 
 
 endmodule: core
