@@ -6,6 +6,9 @@ module decode
     i_clk, i_reset,
     fetch_pc, fetch_inst,
 
+    rr_stall, rr_flush,
+    decode_stall, decode_flush,
+
     decode_pc, decode_altop,
     decode_rd, decode_rs, decode_rt,
     decode_imm32
@@ -18,6 +21,11 @@ module decode
 */
 input wire i_clk, i_reset;
 input wire [31:0] fetch_pc, fetch_inst;
+
+input wire rr_stall, rr_flush;
+output wire decode_stall, decode_flush;
+assign decode_stall = rr_stall;
+assign decode_flush = rr_flush;
 
 wire [5:0] i_op = fetch_inst[31:26];
 wire [3:0] i_rd = fetch_inst[11:8];
@@ -33,7 +41,7 @@ output reg [3:0] decode_rd, decode_rs, decode_rt;
 output reg [31:0] decode_imm32;
 
 always @(posedge i_clk) begin
-    if (i_reset) begin
+    if (i_reset || rr_flush) begin
         decode_pc <= 0;
         o_op <= 0;
         decode_altop <= 0;
@@ -42,7 +50,7 @@ always @(posedge i_clk) begin
         decode_rt <= 0;
         decode_imm32 <= 0;
     end 
-    else begin
+    else if (!rr_stall) begin
         decode_pc <= fetch_pc;
         o_op <= i_op;
         decode_altop <= i_altop;
