@@ -6,8 +6,8 @@ module fetch_stage(
     output reg [31:0] fetch_pc,
     output reg [31:0] fetch_inst,
 
-    input wire i_branch,
-    input wire [31:0] i_branch_addr,
+    input wire exec_ld_pc,
+    input wire [31:0] exec_br_pc,
 
     input wire decode_flush,
     input wire decode_stall,
@@ -26,8 +26,8 @@ module fetch_stage(
     initial branch_stalled = 0;
     initial mem_wait = 0;
 
-    assign mem_req_addr = i_branch ? i_branch_addr : pc;
-    assign mem_req_stb = (!branch_stalled || i_branch) && !mem_wait;
+    assign mem_req_addr = exec_ld_pc ? exec_br_pc : pc;
+    assign mem_req_stb = (!branch_stalled || exec_ld_pc) && !mem_wait;
 
     assign fetch_pc = mem_req_addr;
     assign fetch_inst = mem_req_valid ? mem_req_data: 0;
@@ -39,6 +39,11 @@ module fetch_stage(
             branch_stalled <= 0;
             mem_wait <= 0;
         end
+        else if (exec_ld_pc) begin
+            pc <= exec_br_pc;
+            mem_wait <= 0;
+            branch_stalled <= 0;
+        end
         else begin
 
             if (mem_req_stb && !mem_req_valid)
@@ -46,9 +51,13 @@ module fetch_stage(
             else if (mem_req_valid)
                 mem_wait <= 0;
 
+            else if (exec_ld_pc)
+                pc <= exec_br_pc;
+
             if ((mem_req_stb || mem_wait) && mem_req_valid) begin
                 pc <= pc + 4;
             end
+
         end
     end
 

@@ -29,6 +29,8 @@ wire is_lt = rr_rs_val < rr_rt_val;
 wire is_le = is_eq || is_lt;
 wire is_ne = !is_eq;
 
+reg do_jump;
+
 assign exec_stall = 0;
 assign exec_flush = do_jump;
 
@@ -49,9 +51,9 @@ always @(*) begin
              `EXTOP_NAND: alu_result = ~(rr_rs_val & rr_rt_val);
              `EXTOP_NOR: alu_result = ~(rr_rs_val | rr_rt_val);
              `EXTOP_NXOR: alu_result = ~(rr_rs_val ^ rr_rt_val);
-             `EXTOP_RSH: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
-             `EXTOP_LSH: alu_result = rr_rs_val << rr_rt_val[4:0];
-             default: alu_result = 32'0;
+             `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
+             `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
+             default: alu_result = 32'h0;
         endcase
     end
     else case (rr_op)
@@ -80,7 +82,6 @@ always @(*) begin
     endcase
 end
 
-reg do_jump;
 always @(*) begin
     case (rr_op)
         `OPCODE_JAL: do_jump = 1;

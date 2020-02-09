@@ -94,9 +94,9 @@ always @(posedge i_clk) begin
             decode_rs <= i_rs;
         end else begin
         // ALUIs
-            decode_rt <= i_rt;
+            decode_rd <= i_rt;
             decode_imm32 <= {{16{i_imm16[15]}}, i_imm16};
-            decode_rd <= 0;
+            decode_rt <= 0;
             decode_rs <= i_rs;
             decode_altop <= {2'h0, i_op};
         end

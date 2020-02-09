@@ -11,8 +11,8 @@ module core(
     wire mem_req_valid;
 
     wire [31:0] fetch_pc, fetch_inst;
-    wire i_branch;
-    wire [31:0] i_branch_addr;
+    wire exec_ld_pc;
+    wire [31:0] exec_br_pc;
 
     wire [31:0] decode_pc;
     wire [5:0] decode_op;
@@ -53,8 +53,8 @@ module core(
         .fetch_pc,
         .fetch_inst,
 
-        .i_branch,
-        .i_branch_addr,
+        .exec_ld_pc,
+        .exec_br_pc,
 
         .decode_stall,
         .decode_flush,
@@ -86,7 +86,6 @@ module core(
         .decode_imm32
     );
 
-    wire wr_reg;
     wire [31:0] wr_data;
     wire [3:0] wr_addr;
 
@@ -99,8 +98,7 @@ module core(
         .writeAdd(wr_addr),
         .dataO1(dprf_ra_val),
         .dataO2(dprf_rb_val),
-        .dataI(wr_data),
-        .wrREG(wr_reg)
+        .dataI(wr_data)
     );
 
     register_stage rr(
@@ -137,6 +135,31 @@ module core(
         .fwd_a_val,
         .fwd_b_addr,
         .fwd_b_val
+    );
+
+    execute_stage exec(
+        .i_clk,
+        .i_reset,
+
+        .rr_pc,
+        .rr_op,
+        .rr_altop,
+        .rr_rd,
+        .rr_rs_val,
+        .rr_rt_val,
+        .rr_imm32,
+
+        .exec_stall,
+        .exec_flush,
+
+        .exec_br_pc,
+        .exec_ld_pc,
+
+        .exec_of_reg(fwd_a_addr),
+        .exec_of_val(fwd_a_val),
+
+        .exec_rd(wr_addr),
+        .exec_rd_val(wr_data)
     );
 
 
