@@ -1,0 +1,7 @@
+db/
+incremental_db/
+*.rpt
+*.summary
+output_files/
+*.sof
+*.sop
