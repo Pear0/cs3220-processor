@@ -177,4 +177,24 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_global_assignment -name ACTIVE_SERIAL_CLOCK FREQ_100MHZ
+set_location_assignment PIN_AB12 -to i_switches[9]
+set_location_assignment PIN_AB13 -to i_switches[8]
+set_location_assignment PIN_AA13 -to i_switches[7]
+set_location_assignment PIN_AA14 -to i_switches[6]
+set_location_assignment PIN_AB15 -to i_switches[5]
+set_location_assignment PIN_AA15 -to i_switches[4]
+set_location_assignment PIN_T12 -to i_switches[3]
+set_location_assignment PIN_T13 -to i_switches[2]
+set_location_assignment PIN_U13 -to i_switches[0]
+set_location_assignment PIN_V13 -to i_switches[1]
+set_location_assignment PIN_L1 -to o_leds[9]
+set_location_assignment PIN_L2 -to o_leds[8]
+set_location_assignment PIN_AA2 -to o_leds[0]
+set_location_assignment PIN_AA1 -to o_leds[1]
+set_location_assignment PIN_W2 -to o_leds[2]
+set_location_assignment PIN_Y3 -to o_leds[3]
+set_location_assignment PIN_N2 -to o_leds[4]
+set_location_assignment PIN_N1 -to o_leds[5]
+set_location_assignment PIN_U2 -to o_leds[6]
+set_location_assignment PIN_U1 -to o_leds[7]
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

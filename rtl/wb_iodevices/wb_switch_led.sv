@@ -14,8 +14,8 @@ i_switches);
     output	reg	    o_wb_ack;
     output	wire		o_wb_stall;
     output	reg	    [31:0] o_wb_data;
-    input   wire    [15:0] i_switches;
-    output  wire     [15:0] o_leds;
+    input   wire    [9:0] i_switches;
+    output  wire     [9:0] o_leds;
     
     
     initial begin
@@ -57,7 +57,7 @@ i_switches);
         endcase
         // Selector for data
         case(current_state)
-            RESPOND_READ: o_wb_data = {16'h0, switches};
+            RESPOND_READ: o_wb_data = {22'h0, switches};
             default: o_wb_data = 32'h0;
         endcase
     end
@@ -71,14 +71,14 @@ i_switches);
     // Strobe at idle
         if (i_wb_we) begin
             current_state <= RESPOND_WRITE;
-            internal_led_data <= i_wb_data[15:0];
+            internal_led_data <= i_wb_data[9:0];
         end 
         else
             current_state <= RESPOND_READ;
     end else if ((current_state == RESPOND_WRITE || current_state == RESPOND_READ) && i_wb_cyc && i_wb_stb) begin
         // Strobe (Pipelined request)
         if (i_wb_we) begin
-            internal_led_data <= i_wb_data[15:0];
+            internal_led_data <= i_wb_data[9:0];
             current_state <= RESPOND_WRITE;
         end
         else
