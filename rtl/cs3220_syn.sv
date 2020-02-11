@@ -2,8 +2,9 @@ module cs3220_syn
     (
         input wire i_sys_clk,
         input wire i_resetn,
-
+`ifndef VERILATOR
         output wire [6:0] ssegs [6]
+`endif
     );
 
     wire i_clk = i_sys_clk;
@@ -31,7 +32,7 @@ module cs3220_syn
 // 00 0000 0000 0000 0000 0000 0000 0000 00
 // 00 0000 0000 0000 0000 xxxx xxxx xxxx xx - SRAM   (64KBytes) (0x0000_0000 -> 0x0000_7fff)
 
-// 00 0000 0100 0000 0000 0000 0000 0000 xx - SSEG   (4 Bytes) (0x0100_0000 -> 0x0100_0003)
+// 11 1111 1111 1111 1111 1100 0000 0000 00 - SSEG   (4 Bytes) (0x0100_0000 -> 0x0100_0003)
 // 00 0000 0100 0000 0000 0000 0000 0001 xx - SW/LED (4 Bytes) (0x0100_0004 -> 0x0100_0007)
 // 00 0000 0100 0000 0000 0000 0000 001x xx - LCD    (8 Bytes) (0x0100_0008 -> 0x0100_000f)
 
@@ -39,8 +40,8 @@ module cs3220_syn
 // 11 1111 1111 1111 1111 1111 1111 111x xx - UART (8 Bytes) (0xFFFF_FFF8 -> 0xFFFF_FFFF)
 //(31)
 
-    assign mem_sel = (wb_addr[29:12] == 18'h0); // mem selected
-    assign sseg_sel = (wb_addr[29:0] == 30'h400000); // SSEG
+    assign mem_sel  = (wb_addr[29:12] == 18'h0); // mem selected
+    assign sseg_sel = (wb_addr[29:0 ] == 30'b11_1111_1111_1111_1111_1100_0000_0000); // SSEG
 
 
 // SEL
