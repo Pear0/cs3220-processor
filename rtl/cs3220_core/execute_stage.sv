@@ -25,7 +25,7 @@ module execute_stage(
 );
 
 wire is_eq = rr_rs_val == rr_rt_val;
-wire is_lt = rr_rs_val < rr_rt_val;
+wire is_lt = $signed(rr_rs_val) < $signed(rr_rt_val);
 wire is_le = is_eq || is_lt;
 wire is_ne = !is_eq;
 

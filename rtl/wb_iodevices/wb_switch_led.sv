@@ -32,11 +32,11 @@ i_switches);
     integer current_state;
     initial current_state = IDLE;
 
-    reg [15:0] internal_led_data;
+    reg [9:0] internal_led_data;
     initial internal_led_data = 0;
     assign o_leds = internal_led_data;
 
-    reg [15:0] switches, int_switches;
+    reg [9:0] switches, int_switches;
     initial begin
         switches = 0;
         int_switches = 0;
