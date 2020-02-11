@@ -78,7 +78,7 @@ set_location_assignment PIN_W21 -to ssegs[0][3]
 set_location_assignment PIN_W22 -to ssegs[0][4]
 set_location_assignment PIN_V21 -to ssegs[0][5]
 set_location_assignment PIN_U21 -to ssegs[0][6]
-set_global_assignment -name OPTIMIZATION_MODE BALANCED
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name SMART_RECOMPILE ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL

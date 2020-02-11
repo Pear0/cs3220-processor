@@ -7,3 +7,7 @@ output_files/
 *.sop
 *.bak
 .qsys_edit/
+
+*.done
+*.jdi
+*.smsg
