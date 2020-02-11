@@ -6,6 +6,10 @@ module cs3220_syn
         input  wire [9:0] i_switches,
         output wire [9:0] o_leds,
 
+        `ifdef VERILATOR
+        output wire o_die,
+        `endif
+
     `ifndef VERILATOR
         output wire [6:0] ssegs [0:5]
     `else
@@ -106,6 +110,10 @@ module cs3220_syn
         .wb_ack(mem_ack), .wb_stall(mem_stall), .wb_err(mem_err),
         .wb_odata(mem_data)
     );
+
+    `ifdef VERILATOR
+    assign o_die = (wb_stb && sseg_sel && wb_we) && (wb_mosi != 1);
+    `endif
 
     wb_sevenseg seg(
         .i_clk,

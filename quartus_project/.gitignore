@@ -11,3 +11,4 @@ output_files/
 *.done
 *.jdi
 *.smsg
+*.qws
