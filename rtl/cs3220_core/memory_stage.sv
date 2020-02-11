@@ -125,7 +125,7 @@ assign wb_cyc = (current_state != IDLE && current_state != LAST_STATE);
 
 reg internal_stall;
 initial internal_stall = 0;
-assign mem_stall = writeback_stall || internal_stall;
+assign mem_stall = !(current_state == IDLE);
 
 // internal state machine control signals
 wire state_strobe, state_wait_ack;
