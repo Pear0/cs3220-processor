@@ -10,7 +10,7 @@ module dummy_fetch_stage(
     reg [31:0] pc;
     initial pc = 0;
 
-    reg [31:0] meemory[0:63];
+    reg [31:0] meemory[16384];
 
     wire [31:0] fetch_sub;
     assign fetch_sub = fetch_pc - 32'h100;

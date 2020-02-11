@@ -38,10 +38,28 @@
 
 set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CEFA4F23C7
-set_global_assignment -name TOP_LEVEL_ENTITY core
+set_global_assignment -name TOP_LEVEL_ENTITY cs3220_syn
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.0.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:41:09  FEBRUARY 10, 2020"
 set_global_assignment -name LAST_QUARTUS_VERSION "18.0.0 Standard Edition"
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
+set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
+set_global_assignment -name MIF_FILE ../test_code/test5.mif
+set_global_assignment -name MIF_FILE ../test_code/test4.mif
+set_global_assignment -name MIF_FILE ../test_code/test3.mif
+set_global_assignment -name MIF_FILE ../test_code/test2.mif
+set_global_assignment -name MIF_FILE ../test_code/test1.mif
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/memory_stage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wbpriarbiter.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_syn.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wb_iodevices/wb_switch_led.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wb_iodevices/wb_sevenseg.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wb_iodevices/sevenSegmentDisp.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/memory/m4k_mem.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/tl45_dprf.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/tb_core.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/simple_memory.sv
@@ -52,14 +70,10 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/execute_stage.
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/dummy_fetch_stage.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/decode_stage.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/core.sv
-set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
-set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
-set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
-set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name SDC_FILE cs3220_sdc.sdc
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
-set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
-set_global_assignment -name SDC_FILE cs3220_sdc.sdc
+set_location_assignment PIN_P22 -to i_resetn
+set_location_assignment PIN_M9 -to i_sys_clk
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

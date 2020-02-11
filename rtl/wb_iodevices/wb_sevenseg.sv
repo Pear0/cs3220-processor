@@ -24,7 +24,7 @@ i_alt_sel
 `ifndef VERILATOR
     output
 `endif
-    wire [6:0] displays[8];
+    wire [6:0] displays[6];
 
 	 assign o_wb_stall = i_reset;
 	 
@@ -50,8 +50,6 @@ i_alt_sel
     sevenSegmentDisp digit3(displays[3], lcd_data[15:12]);
     sevenSegmentDisp digit4(displays[4], lcd_data[19:16]);
     sevenSegmentDisp digit5(displays[5], lcd_data[23:20]);
-    sevenSegmentDisp digit6(displays[6], lcd_data[27:24]);
-    sevenSegmentDisp digit7(displays[7], lcd_data[31:28]);
 
 
     always @(*) begin
