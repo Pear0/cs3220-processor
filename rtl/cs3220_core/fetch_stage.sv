@@ -26,11 +26,15 @@ module fetch_stage(
     initial branch_stalled = 0;
     initial mem_wait = 0;
 
-    assign mem_req_addr = exec_ld_pc ? exec_br_pc : pc;
-    assign mem_req_stb = (!branch_stalled || exec_ld_pc) && !mem_wait;
+    assign mem_req_addr = pc;
+    assign mem_req_stb = !branch_stalled && !mem_wait;
+
+
+//    assign mem_req_addr = exec_ld_pc ? exec_br_pc : pc;
+//    assign mem_req_stb = (!branch_stalled || exec_ld_pc) && !mem_wait;
 
     assign fetch_pc = mem_req_addr;
-    assign fetch_inst = mem_req_valid ? mem_req_data: 0;
+    assign fetch_inst = mem_req_valid ? mem_req_data : 0;
 
 
     always @(posedge i_clk) begin
@@ -50,9 +54,6 @@ module fetch_stage(
                 mem_wait <= 1;
             else if (mem_req_valid)
                 mem_wait <= 0;
-
-            else if (exec_ld_pc)
-                pc <= exec_br_pc;
 
             if ((mem_req_stb || mem_wait) && mem_req_valid) begin
                 pc <= pc + 4;
