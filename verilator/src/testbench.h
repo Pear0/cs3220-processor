@@ -73,14 +73,14 @@ template<class MODULE> struct TESTBENCH {
     m_core->eval();
     if(m_trace) m_trace->dump(10*m_tickcount);
 
-    if (m_core->o_die) {
-      if (m_trace) {
-        m_tickcount++;
-        m_trace->dump(10*m_tickcount);
-        m_trace->flush();
-      }
-      throw std::runtime_error("o_die triggered rising");
-    }
+//    if (m_core->o_die) {
+//      if (m_trace) {
+//        m_tickcount++;
+//        m_trace->dump(10*m_tickcount);
+//        m_trace->flush();
+//      }
+//      throw std::runtime_error("o_die triggered rising");
+//    }
 
     // Now the negative edge
     m_core->i_sys_clk = 0;
@@ -97,14 +97,14 @@ template<class MODULE> struct TESTBENCH {
       m_trace->flush();
     }
 
-    if (m_core->o_die) {
-      if (m_trace) {
-        m_tickcount++;
-        m_trace->dump(10 * m_tickcount);
-        m_trace->flush();
-      }
-      throw std::runtime_error("o_die triggered falling");
-    }
+//    if (m_core->o_die) {
+//      if (m_trace) {
+//        m_tickcount++;
+//        m_trace->dump(10 * m_tickcount);
+//        m_trace->flush();
+//      }
+//      throw std::runtime_error("o_die triggered falling");
+//    }
 
   }
 

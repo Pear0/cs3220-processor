@@ -121,11 +121,11 @@ initial current_state = IDLE;
 // wishbone combinational control signals
 assign wb_stb = (current_state == READ_STROBE) || (current_state == WRITE_STROBE);
 assign wb_we  = (current_state == WRITE_STROBE);
-assign wb_cyc = (current_state != IDLE && current_state != LAST_STATE);
+assign wb_cyc = (current_state != IDLE);
 
 reg internal_stall;
 initial internal_stall = 0;
-assign mem_stall = !(current_state == IDLE);
+assign mem_stall = writeback_stall || internal_stall;
 
 // internal state machine control signals
 wire state_strobe, state_wait_ack;
@@ -196,7 +196,7 @@ always @(posedge i_clk) begin
     else if (state_wait_ack && wb_err) begin
         // for now we'll just squash bus error as a special read value.
         // for write, whatever.
-        current_state <= current_state == READ_WAIT_ACK ? (writeback_stall ? READ_STALLED_OUT : READ_OUT) : IDLE;
+        current_state <= current_state == READ_WAIT_ACK ? (writeback_stall ? READ_STALLED_OUT : IDLE) : IDLE;
 
         if (!is_write) begin
             if (writeback_stall)
@@ -210,9 +210,9 @@ always @(posedge i_clk) begin
     else if (state_wait_ack && wb_ack && !wb_err) begin
 
         if (current_state == READ_WAIT_ACK)
-            current_state <= writeback_stall ? READ_STALLED_OUT : READ_OUT;
+            current_state <= writeback_stall ? READ_STALLED_OUT : IDLE;
         else
-            current_state <= READ_OUT;
+            current_state <= IDLE;
 
         wb_sel <= 0;
 
