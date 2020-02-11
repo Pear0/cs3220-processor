@@ -23,11 +23,10 @@ module fetch_stage(
     reg branch_stalled;
     reg mem_wait;
     initial pc = 0;
-    initial branch_stalled = 0;
     initial mem_wait = 0;
 
     assign mem_req_addr = pc;
-    assign mem_req_stb = !branch_stalled && !mem_wait;
+    assign mem_req_stb = !mem_wait;
 
 
 //    assign mem_req_addr = exec_ld_pc ? exec_br_pc : pc;
@@ -40,21 +39,17 @@ module fetch_stage(
     always @(posedge i_clk) begin
         if (i_reset) begin
             pc <= 32'h100;
-            branch_stalled <= 0;
             mem_wait <= 0;
         end
-        else if (exec_ld_pc) begin
+        else if (exec_ld_pc && !decode_stall) begin
             pc <= exec_br_pc;
             mem_wait <= 0;
-            branch_stalled <= 0;
         end
-        else begin
-
+        else if (!decode_stall) begin
             if (mem_req_stb && !mem_req_valid)
                 mem_wait <= 1;
             else if (mem_req_valid)
                 mem_wait <= 0;
-
             if ((mem_req_stb || mem_wait) && mem_req_valid) begin
                 pc <= pc + 4;
             end

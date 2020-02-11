@@ -8,7 +8,7 @@
 #include <memory>
 #include <random>
 #include "testbench.h"
-#include "Vcore.h"
+#include "Vcs3220_syn.h"
 #include "wb_slave.h"
 
 std::vector<uint32_t> read_file(const std::string &file) {
@@ -61,9 +61,7 @@ std::vector<uint32_t> read_hex(const std::string &file) {
   return words;
 }
 
-void load_memory(Vcore *core, const std::vector<uint32_t> &words) {
-  auto &ram = core->core__DOT__imem__DOT__memory;
-
+void load_memory(uint32_t *ram, const std::vector<uint32_t> &words) {
   for (size_t i = 0; i < words.size(); i++) {
     ram[i] = words[i];
   }
@@ -96,9 +94,11 @@ std::vector<uint32_t> read_expected(const std::string &file) {
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
-  TESTBENCH<Vcore> *tb = new TESTBENCH<Vcore>();
+  auto *tb = new TESTBENCH<Vcs3220_syn>();
 
-  auto &ram = tb->m_core->core__DOT__imem__DOT__memory;
+  auto &ram = tb->m_core->cs3220_syn__DOT__core__DOT__imem__DOT__memory;
+  auto &dram = tb->m_core->cs3220_syn__DOT__dmem__DOT__memory;
+//  auto &dram = tb->m_core
 #define LOAD
 #ifdef LOAD
   if (argc == 1) {
@@ -111,9 +111,10 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  load_memory(tb->m_core, words);
+  load_memory(ram, words);
+  load_memory(dram, words);
 
-  std::cout << std::hex << (uint32_t) ram[64] << "\n";
+  std::cout << std::hex << (uint32_t) ram[words.size()-1] << "\n" << "@0x" << words.size() - 1;
 
 #else
   ram[0] = 0x0d20FFFF;
@@ -133,7 +134,7 @@ int main(int argc, char **argv) {
 
   tb->reset();
 
-  while (!tb->done() && (!(DO_TRACE) || tb->m_tickcount < 100 * 200)) {
+  while (!tb->done() && (!(DO_TRACE) || tb->m_tickcount < 800 * 200)) {
     tb->tick();
   }
 

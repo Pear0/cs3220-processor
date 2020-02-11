@@ -12,8 +12,7 @@ module simple_memory(
     parameter IMEMWORDBITS=2;
     parameter IMEMWORDS=(1 << (IMEMADDRBITS-IMEMWORDBITS));
 
-    // (* ram_init_file = IDMEMINITFILE *)
-    (* ram_init_file = "../test_code/test1.mif" *) 
+    (* ram_init_file = `MEMINIT_FILE *)
 	 reg [31:0] memory [IMEMWORDS-1:0];
 
     assign mem_req_data = memory[mem_req_addr[IMEMADDRBITS-1:IMEMWORDBITS]];

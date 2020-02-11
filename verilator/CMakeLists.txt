@@ -23,7 +23,7 @@ add_executable(sim_cs3220_comp
         ${VERILATOR_INCLUDE_DIR}/verilated_vcd_c.cpp
         src/main_cs3220_comp.cpp)
 
-target_link_libraries(sim_cs3220_comp ${CMAKE_CURRENT_SOURCE_DIR}/obj_dir/Vcore__ALL.a)
+target_link_libraries(sim_cs3220_comp ${CMAKE_CURRENT_SOURCE_DIR}/obj_dir/Vcs3220_syn__ALL.a)
 
 #add_executable(sim_tl45_io
 #        ${VERILATOR_INCLUDE_DIR}/verilated.cpp

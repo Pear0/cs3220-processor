@@ -1,15 +1,14 @@
 `default_nettype none
 
-module wb_sevenseg(i_clk, i_reset,
-i_wb_cyc, i_wb_stb, i_wb_we, 
-i_wb_addr, i_wb_data, i_wb_sel,
-o_wb_ack, o_wb_stall, 
+module wb_sevenseg(
+    i_clk, i_reset,
+    i_wb_cyc, i_wb_stb, i_wb_we, 
+    i_wb_addr, i_wb_data, i_wb_sel,
+    o_wb_ack, o_wb_stall, 
     o_wb_data,
-`ifndef VERILATOR
     displays,
-`endif
-i_alt_data,
-i_alt_sel
+    i_alt_data,
+    i_alt_sel
 );
     input wire i_alt_sel;
     input wire [31:0] i_alt_data;
@@ -21,10 +20,11 @@ i_alt_sel
     output	wire    o_wb_stall;
     output	reg	    [31:0] o_wb_data;
 
-`ifndef VERILATOR
-    output
-`endif
-    wire [6:0] displays[6];
+    `ifndef VERILATOR
+        output wire [6:0] displays [0:5];
+    `else
+        output wire [41:0] displays;
+    `endif
 
 	 assign o_wb_stall = i_reset;
 	 
@@ -41,15 +41,17 @@ i_alt_sel
     reg [31:0] internal_data;
     initial internal_data = 0;
 
-    wire [31:0] lcd_data;
-    assign lcd_data = i_alt_sel ? i_alt_data : internal_data;
+    wire [31:0] sseg_data;
+    assign sseg_data = i_alt_sel ? i_alt_data : internal_data;
 
-    sevenSegmentDisp digit0(displays[0], lcd_data[3:0]);
-    sevenSegmentDisp digit1(displays[1], lcd_data[7:4]);
-    sevenSegmentDisp digit2(displays[2], lcd_data[11:8]);
-    sevenSegmentDisp digit3(displays[3], lcd_data[15:12]);
-    sevenSegmentDisp digit4(displays[4], lcd_data[19:16]);
-    sevenSegmentDisp digit5(displays[5], lcd_data[23:20]);
+`ifndef VERILATOR
+    sevenSegmentDisp digit0(displays[0], sseg_data[3:0]);
+    sevenSegmentDisp digit1(displays[1], sseg_data[7:4]);
+    sevenSegmentDisp digit2(displays[2], sseg_data[11:8]);
+    sevenSegmentDisp digit3(displays[3], sseg_data[15:12]);
+    sevenSegmentDisp digit4(displays[4], sseg_data[19:16]);
+    sevenSegmentDisp digit5(displays[5], sseg_data[23:20]);
+`endif
 
 
     always @(*) begin

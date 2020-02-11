@@ -2,21 +2,33 @@ module cs3220_syn
     (
         input wire i_sys_clk,
         input wire i_resetn,
-`ifndef VERILATOR
-        output wire [6:0] ssegs [6]
-`endif
+    `ifndef VERILATOR
+        output wire [6:0] ssegs [0:5]
+    `else
+        output wire [41:0] ssegs
+    `endif
     );
 
     wire i_clk = i_sys_clk;
-    wire i_reset = !i_resetn;
+    reg i_reset;
+	 `ifdef VERILATOR
+	 always @(*)
+		i_reset = !i_resetn;
+	 `else
+		reg i_reset_buf;
+		initial i_reset = 1;
+		initial i_reset_buf = 1;
+		always @(posedge i_clk)
+			{i_reset, i_reset_buf} <= {i_reset_buf, !i_resetn};
+	 `endif
 
 
     wire wb_cyc, wb_stb, wb_we;
     wire [29:0] wb_addr;
-    wire [31:0] wb_idata;
+    reg [31:0] wb_miso;
     wire [3:0] wb_sel;
-    wire wb_ack, wb_stall, wb_err;
-    wire [31:0] wb_odata;
+    reg wb_ack, wb_stall, wb_err;
+    wire [31:0] wb_mosi;
 
     wire [31:0] mem_data; // MEM
     wire [31:0] sseg_data;
@@ -30,7 +42,7 @@ module cs3220_syn
 // ------- BUS ADDRESS SAPCE ----------- --SEL
 //
 // 00 0000 0000 0000 0000 0000 0000 0000 00
-// 00 0000 0000 0000 0000 xxxx xxxx xxxx xx - SRAM   (64KBytes) (0x0000_0000 -> 0x0000_7fff)
+// 00 0000 0000 0000 00xx xxxx xxxx xxxx xx - SRAM   (64KBytes) (0x0000_0000 -> 0x0000_ffff)
 
 // 11 1111 1111 1111 1111 1100 0000 0000 00 - SSEG   (4 Bytes) (0x0100_0000 -> 0x0100_0003)
 // 00 0000 0100 0000 0000 0000 0000 0001 xx - SW/LED (4 Bytes) (0x0100_0004 -> 0x0100_0007)
@@ -40,7 +52,7 @@ module cs3220_syn
 // 11 1111 1111 1111 1111 1111 1111 111x xx - UART (8 Bytes) (0xFFFF_FFF8 -> 0xFFFF_FFFF)
 //(31)
 
-    assign mem_sel  = (wb_addr[29:12] == 18'h0); // mem selected
+    assign mem_sel  = (wb_addr[29:14] == 16'h0); // mem selected
     assign sseg_sel = (wb_addr[29:0 ] == 30'b11_1111_1111_1111_1111_1100_0000_0000); // SSEG
 
 
@@ -52,26 +64,30 @@ module cs3220_syn
         ;
 
     always @(posedge i_clk)
-        wb_err <= (wb_stb) && (none_sel);
+		if (mem_err)
+            wb_err <= mem_err;
+        else
+            wb_err <= (wb_stb) && (none_sel);
 
 // Master Bus Respond
     always @(posedge i_clk)
-        wb_ack <=
-            mem_ack
-                || sseg_ack
-            ;
+        wb_ack <= 
+           mem_ack
+        || sseg_ack
+        ;
 
     always @(posedge i_clk)
         if (mem_ack)
-            wb_idata <= mem_data;
+            wb_miso <= mem_data;
         else if (sseg_ack)
-            wb_idata <= sseg_data;
+            wb_miso <= sseg_data;
         else
-            wb_idata <= 32'h0;
+            wb_miso <= 32'h0;
 
+        
     assign wb_stall =
-        ((mem_sel) && (mem_stall))
-            || (sseg_sel) && (sseg_stall)
+           (mem_sel) && (mem_stall)
+        || (sseg_sel) && (sseg_stall)
         ;
 
     wire mem_err;
@@ -80,7 +96,7 @@ module cs3220_syn
         .i_clk, .i_reset,
         .wb_cyc, .wb_stb(wb_stb && mem_sel), .wb_we,
         .wb_addr,
-        .wb_idata,
+        .wb_idata(wb_mosi),
         .wb_sel,
         .wb_ack(mem_ack), .wb_stall(mem_stall), .wb_err(mem_err),
         .wb_odata(mem_data)
@@ -90,7 +106,7 @@ module cs3220_syn
         .i_clk,
         .i_reset,
         .i_wb_cyc(wb_cyc), .i_wb_stb(wb_stb && sseg_sel), .i_wb_we(wb_we),
-        .i_wb_addr(wb_addr), .i_wb_data(wb_idata), .i_wb_sel(wb_sel),
+        .i_wb_addr(wb_addr), .i_wb_data(wb_mosi), .i_wb_sel(wb_sel),
         .o_wb_ack(sseg_ack), .o_wb_stall(sseg_stall),
         .o_wb_data(sseg_data),
         .displays(ssegs),
@@ -106,12 +122,12 @@ module cs3220_syn
         .wb_stb,
         .wb_we,
         .wb_addr,
-        .wb_odata,
+        .wb_mosi,
         .wb_sel,
         .wb_ack,
         .wb_stall,
         .wb_err,
-        .wb_idata,
+        .wb_miso
     );
 
 endmodule: cs3220_syn

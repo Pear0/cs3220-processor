@@ -1,0 +1,243 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Feb 11 03:42:06 2020
+[*]
+[dumpfile] "/home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/cmake-build-debug/trace.vcd"
+[dumpfile_mtime] "Tue Feb 11 03:38:32 2020"
+[dumpfile_size] 5648665
+[savefile] "/home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/gtkw/cs3220_syn.gtkw"
+[timestart] 8
+[size] 2556 1396
+[pos] -1 -1
+*-5.000000 90 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.cs3220_syn.
+[treeopen] TOP.cs3220_syn.core.
+[sst_width] 211
+[signals_width] 293
+[sst_expanded] 1
+[sst_vpaned_height] 406
+@28
+TOP.cs3220_syn.i_clk
+TOP.cs3220_syn.i_reset
+@200
+-Fetch
+@22
+[color] 2
+TOP.cs3220_syn.core.fetch.pc[31:0]
+@28
+[color] 2
+TOP.cs3220_syn.core.fetch.mem_req_stb
+@22
+[color] 2
+TOP.cs3220_syn.core.fetch.mem_req_addr[31:0]
+@28
+[color] 2
+TOP.cs3220_syn.core.fetch.mem_req_valid
+@22
+[color] 2
+TOP.cs3220_syn.core.fetch.mem_req_data[31:0]
+@28
+TOP.cs3220_syn.core.fetch.exec_ld_pc
+@22
+[color] 2
+TOP.cs3220_syn.core.fetch.exec_br_pc[31:0]
+@200
+-Fetch Buffer
+@22
+[color] 2
+TOP.cs3220_syn.core.fetch.fetch_pc[31:0]
+[color] 2
+TOP.cs3220_syn.core.fetch.fetch_inst[31:0]
+@200
+-Decode
+@28
+[color] 4
+TOP.cs3220_syn.core.fetch.decode_stall
+[color] 4
+TOP.cs3220_syn.core.fetch.decode_flush
+@200
+-Decode Buffer
+@22
+[color] 4
+TOP.cs3220_syn.core.decode.decode_pc[31:0]
+@2028
+[color] 4
+^1 /home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/gtkw/opcode.txt
+TOP.cs3220_syn.core.decode.decode_op[5:0]
+[color] 4
+^2 /home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/gtkw/altop.txt
+TOP.cs3220_syn.core.decode.decode_altop[7:0]
+@22
+[color] 4
+TOP.cs3220_syn.core.decode.decode_rd[3:0]
+[color] 4
+TOP.cs3220_syn.core.decode.decode_rs[3:0]
+[color] 4
+TOP.cs3220_syn.core.decode.decode_rt[3:0]
+[color] 4
+TOP.cs3220_syn.core.decode.decode_imm32[31:0]
+@200
+-Register Read
+@28
+[color] 2
+TOP.cs3220_syn.core.decode.rr_stall
+[color] 2
+TOP.cs3220_syn.core.decode.rr_flush
+@22
+[color] 2
+TOP.cs3220_syn.core.rr.fwd_a_addr[3:0]
+[color] 2
+TOP.cs3220_syn.core.rr.fwd_a_val[31:0]
+[color] 2
+TOP.cs3220_syn.core.rr.fwd_b_addr[3:0]
+[color] 2
+TOP.cs3220_syn.core.rr.fwd_b_val[31:0]
+[color] 2
+TOP.cs3220_syn.core.rr.dprf_ra[3:0]
+[color] 2
+TOP.cs3220_syn.core.rr.dprf_ra_val[31:0]
+[color] 2
+TOP.cs3220_syn.core.rr.dprf_rb[3:0]
+[color] 2
+TOP.cs3220_syn.core.rr.dprf_rb_val[31:0]
+@200
+-Register Read Buffer
+@22
+[color] 2
+TOP.cs3220_syn.core.rr.rr_pc[31:0]
+@2028
+[color] 2
+^1 /home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/gtkw/opcode.txt
+TOP.cs3220_syn.core.rr.rr_op[5:0]
+[color] 2
+^2 /home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/gtkw/altop.txt
+TOP.cs3220_syn.core.rr.rr_altop[7:0]
+@22
+[color] 2
+TOP.cs3220_syn.core.rr.rr_rd[3:0]
+[color] 2
+TOP.cs3220_syn.core.rr.rr_rs_val[31:0]
+[color] 2
+TOP.cs3220_syn.core.rr.rr_rt_val[31:0]
+[color] 2
+TOP.cs3220_syn.core.rr.rr_imm32[31:0]
+@201
+-Execute
+@28
+TOP.cs3220_syn.core.exec.exec_stall
+TOP.cs3220_syn.core.exec.exec_flush
+TOP.cs3220_syn.core.exec.is_jump
+TOP.cs3220_syn.core.exec.exec_ld_pc
+@200
+-Execute Buffer
+@22
+TOP.cs3220_syn.core.exec.exec_rd[3:0]
+TOP.cs3220_syn.core.exec.exec_rd_val[31:0]
+@200
+-Memory
+@28
+[color] 7
+TOP.cs3220_syn.core.mem_stage.mem_stall
+@22
+[color] 7
+TOP.cs3220_syn.core.mem_stage.current_state[3:0]
+@28
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_cyc
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_stb
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_we
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_stall
+@22
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_addr[29:0]
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_mosi[31:0]
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_sel[3:0]
+@28
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_err
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_ack
+@22
+[color] 7
+TOP.cs3220_syn.core.mem_stage.wb_miso[31:0]
+@200
+-Memory Buffer
+@22
+[color] 7
+TOP.cs3220_syn.core.mem_stage.mem_rd[3:0]
+[color] 7
+TOP.cs3220_syn.core.mem_stage.mem_rd_val[31:0]
+@200
+-Registers
+@22
+TOP.cs3220_syn.core.dprf.registers(0)[31:0]
+TOP.cs3220_syn.core.dprf.registers(1)[31:0]
+TOP.cs3220_syn.core.dprf.registers(2)[31:0]
+TOP.cs3220_syn.core.dprf.registers(3)[31:0]
+TOP.cs3220_syn.core.dprf.registers(4)[31:0]
+TOP.cs3220_syn.core.dprf.registers(5)[31:0]
+TOP.cs3220_syn.core.dprf.registers(6)[31:0]
+TOP.cs3220_syn.core.dprf.registers(7)[31:0]
+TOP.cs3220_syn.core.dprf.registers(8)[31:0]
+TOP.cs3220_syn.core.dprf.registers(9)[31:0]
+TOP.cs3220_syn.core.dprf.registers(10)[31:0]
+TOP.cs3220_syn.core.dprf.registers(11)[31:0]
+TOP.cs3220_syn.core.dprf.registers(12)[31:0]
+TOP.cs3220_syn.core.dprf.registers(13)[31:0]
+TOP.cs3220_syn.core.dprf.registers(14)[31:0]
+TOP.cs3220_syn.core.dprf.registers(15)[31:0]
+@200
+-SSEG
+@c00022
+TOP.cs3220_syn.seg.sseg_data[31:0]
+@28
+(0)TOP.cs3220_syn.seg.sseg_data[31:0]
+(1)TOP.cs3220_syn.seg.sseg_data[31:0]
+(2)TOP.cs3220_syn.seg.sseg_data[31:0]
+(3)TOP.cs3220_syn.seg.sseg_data[31:0]
+(4)TOP.cs3220_syn.seg.sseg_data[31:0]
+(5)TOP.cs3220_syn.seg.sseg_data[31:0]
+(6)TOP.cs3220_syn.seg.sseg_data[31:0]
+(7)TOP.cs3220_syn.seg.sseg_data[31:0]
+(8)TOP.cs3220_syn.seg.sseg_data[31:0]
+(9)TOP.cs3220_syn.seg.sseg_data[31:0]
+(10)TOP.cs3220_syn.seg.sseg_data[31:0]
+(11)TOP.cs3220_syn.seg.sseg_data[31:0]
+(12)TOP.cs3220_syn.seg.sseg_data[31:0]
+(13)TOP.cs3220_syn.seg.sseg_data[31:0]
+(14)TOP.cs3220_syn.seg.sseg_data[31:0]
+(15)TOP.cs3220_syn.seg.sseg_data[31:0]
+(16)TOP.cs3220_syn.seg.sseg_data[31:0]
+(17)TOP.cs3220_syn.seg.sseg_data[31:0]
+(18)TOP.cs3220_syn.seg.sseg_data[31:0]
+(19)TOP.cs3220_syn.seg.sseg_data[31:0]
+(20)TOP.cs3220_syn.seg.sseg_data[31:0]
+(21)TOP.cs3220_syn.seg.sseg_data[31:0]
+(22)TOP.cs3220_syn.seg.sseg_data[31:0]
+(23)TOP.cs3220_syn.seg.sseg_data[31:0]
+(24)TOP.cs3220_syn.seg.sseg_data[31:0]
+(25)TOP.cs3220_syn.seg.sseg_data[31:0]
+(26)TOP.cs3220_syn.seg.sseg_data[31:0]
+(27)TOP.cs3220_syn.seg.sseg_data[31:0]
+(28)TOP.cs3220_syn.seg.sseg_data[31:0]
+(29)TOP.cs3220_syn.seg.sseg_data[31:0]
+(30)TOP.cs3220_syn.seg.sseg_data[31:0]
+(31)TOP.cs3220_syn.seg.sseg_data[31:0]
+@1401200
+-group_end
+@200
+-m4kmem
+@28
+TOP.cs3220_syn.dmem.wb_cyc
+TOP.cs3220_syn.dmem.wb_stb
+TOP.cs3220_syn.dmem.state[0]
+@200
+-Wishbone Garbage
+[pattern_trace] 1
+[pattern_trace] 0

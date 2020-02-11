@@ -9,10 +9,10 @@ module memory_stage(
     // Wishbone
     output reg wb_cyc, wb_stb, wb_we,
     output reg [31-2:0] wb_addr,
-    output reg [31:0] wb_odata,
+    output reg [31:0] wb_mosi,
     output reg [3:0] wb_sel,
     input wire wb_ack, wb_stall, wb_err,
-    input wire [31:0] wb_idata,
+    input wire [31:0] wb_miso,
 
     // Buffer In
     input wire [5:0] rr_op,
@@ -37,7 +37,7 @@ initial begin
     wb_cyc = 0;
     wb_stb = 0;
     wb_we = 0;
-    wb_odata = 0;
+    wb_mosi = 0;
     wb_addr = 0;
 end
 
@@ -102,7 +102,7 @@ always @(*)
 
 reg [31:0] in_data;
 always @(*)
-    in_data = wb_idata;
+    in_data = wb_miso;
 
 
 localparam
@@ -138,7 +138,7 @@ always @(*)
         READ_STROBE,
         WRITE_STROBE: internal_stall = 1;
         READ_WAIT_ACK,
-        WRITE_WAIT_ACK: internal_stall = 1;
+        WRITE_WAIT_ACK: internal_stall = !(wb_err || wb_ack);
         READ_STALLED_OUT: internal_stall = 1;
         READ_OUT: internal_stall = 0;
         default: internal_stall = 1;
@@ -154,7 +154,7 @@ always @(*)
         end
         READ_WAIT_ACK: begin
             mem_of_reg = !writeback_stall ? rr_rd: 0;
-            mem_of_val = !writeback_stall ? (wb_err ? 32'h13371337 :wb_idata) : 0;
+            mem_of_val = !writeback_stall ? (wb_err ? 32'h13371337 : wb_miso) : 0;
         end
         default: begin
             mem_of_reg = 0;
@@ -167,7 +167,7 @@ always @(posedge i_clk) begin
         current_state <= IDLE;
 
         wb_addr <= 0;
-        wb_odata <= 0;
+        wb_mosi <= 0;
         wb_sel <= 0;
 
         mem_rd <= 0;
@@ -176,18 +176,22 @@ always @(posedge i_clk) begin
     else if (writeback_stall) begin
     end
     else if ((current_state == IDLE) && start_tx) begin
-        current_state <= is_write ? WRITE_STROBE : READ_STROBE;
-        wb_addr <= mem_addr[31:2];
-        wb_sel <= wb_sel_val;
+        mem_rd <= 0;
+        mem_rd_val <= 0;
+        if (start_tx) begin
+            current_state <= is_write ? WRITE_STROBE : READ_STROBE;
+            wb_addr <= mem_addr[31:2];
+            wb_sel <= wb_sel_val;
 
-        if (is_write)
-            wb_odata <= write_data;
+            if (is_write)
+                wb_mosi <= write_data;
+        end
     end
     else if (state_strobe && !wb_stall) begin
         current_state <= current_state == READ_STROBE ? READ_WAIT_ACK : WRITE_WAIT_ACK;
         wb_addr <= 0;
 
-        wb_odata <= 0;
+        wb_mosi <= 0;
     end
     else if (state_wait_ack && wb_err) begin
         // for now we'll just squash bus error as a special read value.
@@ -222,7 +226,7 @@ always @(posedge i_clk) begin
         end
     end
     else if (current_state == READ_STALLED_OUT && !writeback_stall) begin
-        current_state <= READ_OUT;
+        current_state <= IDLE;
 
         mem_rd <= rr_rd;
         mem_rd_val <= temp_read;

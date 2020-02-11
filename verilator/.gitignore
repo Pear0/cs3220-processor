@@ -1,5 +1,7 @@
 obj_dir/
-cmake-build-debug/
+cmake-*/
 build/
+
+.idea/
 
 *.nogit.*

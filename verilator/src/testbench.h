@@ -41,10 +41,10 @@ template<class MODULE> struct TESTBENCH {
   }
 
   virtual void	reset(void) {
-    m_core->i_reset = 1;
+    m_core->i_resetn = 0;
     // Make sure any inheritance gets applied
     this->tick();
-    m_core->i_reset = 0;
+    m_core->i_resetn = 1;
   }
 
   virtual void	tick(void) {
@@ -58,7 +58,7 @@ template<class MODULE> struct TESTBENCH {
     // coming into here, since we need all combinatorial logic
     // to be settled before we call for a clock tick.
     //
-    m_core->i_clk = 0;
+    m_core->i_sys_clk = 0;
     m_core->eval();
 
     //
@@ -69,12 +69,12 @@ template<class MODULE> struct TESTBENCH {
     if(m_trace) m_trace->dump(10*m_tickcount-2);
 
     // Repeat for the positive edge of the clock
-    m_core->i_clk = 1;
+    m_core->i_sys_clk = 1;
     m_core->eval();
     if(m_trace) m_trace->dump(10*m_tickcount);
 
     // Now the negative edge
-    m_core->i_clk = 0;
+    m_core->i_sys_clk = 0;
     m_core->eval();
     if (m_trace) {
       // This portion, though, is a touch different.

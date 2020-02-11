@@ -22,29 +22,19 @@ end
 // Read Port 1 selection
 always @(*)
 begin
-	if (readAdd1 == 0)
-		dataO1 = 0;
-	else if (readAdd1 == writeAdd)
-		dataO1 = dataI;
-	else
-		dataO1 = registers[readAdd1];
+	dataO1 = registers[readAdd1];
 end
 
 // Read Port 2 selection
 always @(*)
 begin
-	if (readAdd2 == 0)
-		dataO2 = 0;
-	else if (readAdd2 == writeAdd)
-		dataO2 = dataI;
-	else
-		dataO2 = registers[readAdd2];
+	dataO2 = registers[readAdd2];
 end
 
 // Write
 always @(posedge clk)
 begin
-	if (writeAdd > 0) begin
+	if (writeAdd != 0) begin
 		registers[writeAdd] <= dataI;
 	end
 end

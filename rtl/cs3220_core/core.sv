@@ -5,10 +5,10 @@ module core(
 
     output wire wb_cyc, wb_stb, wb_we,
     output wire [29:0] wb_addr,
-    input wire [31:0] wb_idata,
+    input wire [31:0] wb_miso,
     output wire [3:0] wb_sel,
     input wire wb_ack, wb_stall, wb_err,
-    output wire [31:0] wb_odata
+    output wire [31:0] wb_mosi
 );
 
     wire [31:0] mem_req_addr;
@@ -101,6 +101,9 @@ module core(
     assign wr_addr = mem_rd != 0 ? mem_rd:exec_rd;
     assign wr_data = mem_rd != 0 ? mem_rd_val:exec_rd_val;
 
+    assign fwd_b_val = wr_data;
+    assign fwd_b_addr = wr_addr;
+
     tl45_dprf dprf(
         .clk(i_clk),
         .reset(i_reset),
@@ -189,12 +192,12 @@ module core(
         .wb_stb,
         .wb_we,
         .wb_addr,
-        .wb_odata,
+        .wb_mosi,
         .wb_sel,
         .wb_ack,
         .wb_stall,
         .wb_err,
-        .wb_idata,
+        .wb_miso,
 
         .rr_op,
         .rr_altop,
