@@ -32,6 +32,6 @@
 `define EXTOP_RSHF 8'b0011_0000
 `define EXTOP_LSHF 8'b0011_0001
 
-`define MEMINIT_FILE "../test_code/test.mif"
+`define MEMINIT_FILE "../test_code/fmedian2.mif"
 
 `endif

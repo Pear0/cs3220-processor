@@ -175,7 +175,7 @@ always @(posedge i_clk) begin
     end
     else if (writeback_stall) begin
     end
-    else if ((current_state == IDLE) && start_tx) begin
+    else if (current_state == IDLE) begin
         mem_rd <= 0;
         mem_rd_val <= 0;
         if (start_tx) begin

@@ -18,7 +18,16 @@ module cs3220_syn
     `endif
     );
 
-    wire i_clk = i_sys_clk;
+		
+	wire i_clk;
+	wire locked;
+	 main_pll pll_yeet(
+		i_sys_clk,   //  refclk.clk
+		0,      //   reset.reset
+		i_clk, // outclk0.clk
+		locked    //  locked.export
+	);
+	 
     reg i_reset;
 	 `ifdef VERILATOR
 	 always @(*)
@@ -28,7 +37,7 @@ module cs3220_syn
 		initial i_reset = 1;
 		initial i_reset_buf = 1;
 		always @(posedge i_clk)
-			{i_reset, i_reset_buf} <= {i_reset_buf, !i_resetn};
+			{i_reset, i_reset_buf} <= {i_reset_buf, (!i_resetn || !locked)};
 	 `endif
 
 
@@ -155,7 +164,7 @@ module cs3220_syn
         .i_wb_addr(wb_addr), .i_wb_data(wb_mosi), .i_wb_sel(wb_sel),
         .o_wb_ack(key_ack), .o_wb_stall(key_stall),
         .o_wb_data(key_data),
-        .i_keys
+        .i_keys(~i_keys)
     );
 
     core core(

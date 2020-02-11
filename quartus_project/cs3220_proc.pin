@@ -74,7 +74,7 @@ CHIP  "cs3220_proc"  ASSIGNED TO AN: 5CEFA4F23C7
 
 Pin Name/Usage               : Location  : Dir.   : I/O Standard      : Voltage : I/O Bank  : User Assignment
 -------------------------------------------------------------------------------------------------------------
-GND                          : A1        :        :                   :         :           :                
+RREF                         : A1        :        :                   :         :           :                
 MSEL2                        : A2        :        :                   :         : 9A        :                
 VCCBAT                       : A3        : power  :                   : 1.2V    :           :                
 nCONFIG                      : A4        :        :                   :         : 9A        :                
@@ -365,8 +365,8 @@ GND                          : M2        : gnd    :                   :         
 VCCA_FPLL                    : M3        : power  :                   : 2.5V    :           :                
 GND                          : M4        : gnd    :                   :         :           :                
 TDO                          : M5        : output :                   :         : 3A        :                
-RESERVED_INPUT               : M6        :        :                   :         : 3A        :                
-RESERVED_INPUT               : M7        :        :                   :         : 3A        :                
+i_keys[3]                    : M6        : input  : 2.5 V             :         : 3A        : Y              
+i_keys[2]                    : M7        : input  : 2.5 V             :         : 3A        : Y              
 ssegs[5][5]                  : M8        : output : 3.3-V LVTTL       :         : 3B        : Y              
 i_sys_clk                    : M9        : input  : 3.3-V LVTTL       :         : 3B        : Y              
 GND                          : M10       : gnd    :                   :         :           :                
@@ -476,7 +476,7 @@ GND                          : U3        : gnd    :                   :         
 GND                          : U4        : gnd    :                   :         :           :                
 GND                          : U5        : gnd    :                   :         :           :                
 RESERVED_INPUT               : U6        :        :                   :         : 3A        :                
-RESERVED_INPUT               : U7        :        :                   :         : 3A        :                
+i_keys[0]                    : U7        : input  : 2.5 V             :         : 3A        : Y              
 RESERVED_INPUT               : U8        :        :                   :         : 3A        :                
 GND                          : U9        : gnd    :                   :         :           :                
 RESERVED_INPUT               : U10       :        :                   :         : 3B        :                
@@ -522,7 +522,7 @@ TDI                          : W5        : input  :                   :         
 VCCPD3A                      : W6        : power  :                   : 2.5V    : 3A        :                
 VCC_AUX                      : W7        : power  :                   : 2.5V    :           :                
 RESERVED_INPUT               : W8        :        :                   :         : 3A        :                
-RESERVED_INPUT               : W9        :        :                   :         : 3A        :                
+i_keys[1]                    : W9        : input  : 2.5 V             :         : 3A        : Y              
 VCCIO3B                      : W10       : power  :                   : 3.3V    : 3B        :                
 VCCPD3B4A                    : W11       : power  :                   : 3.3V    : 3B, 4A    :                
 VCCPD3B4A                    : W12       : power  :                   : 3.3V    : 3B, 4A    :                
