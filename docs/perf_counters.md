@@ -11,9 +11,12 @@ Performance counters themselves are each 32 bit.
 | ID | Name | Description |
 |----|------|-------------|
 | `0x00` | Reserved | |
-| `0x01` | Executed Instruction Count (low) | |
-| `0x02` | Executed Instruction Count (high) | | 
-| `0x03` | Executed Branch Count | |
+| `0x01` | Reserved | |
+| `0x02` | Executed Instruction Count (low) | |
+| `0x03` | Executed Instruction Count (high) | | 
+| `0x04` | Total Cycle Count (low) | |
+| `0x05` | Total Cycle Count (high) | | 
+
 
 
 

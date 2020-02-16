@@ -208,6 +208,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_if.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_counter.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_counter64.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_watcher.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_mux2.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/compat/compat_shift.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wb_iodevices/wb_keys.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/memory_stage.sv

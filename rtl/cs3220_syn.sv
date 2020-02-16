@@ -22,14 +22,17 @@ module cs3220_syn
     perf_if main_perf();
 
     wire show_perf_counter;
-    assign show_perf_counter = i_switches[7:0] != 0;
+    assign show_perf_counter = i_switches[8:0] != 0;
     wire [31:0] perf_data;
+
+    wire [31:0] displayed_perf_data = {16'b0, i_switches[0] ? perf_data[31:16] : perf_data[15:0]};
+    localparam perf_disp_en = 6'b1111;
 
     perf_watcher watcher(
         .i_clk,
         .i_reset,
 
-        .addr(i_switches[7:0]),
+        .addr(i_switches[8:1]),
         .data(perf_data),
 
         .perf(main_perf)
@@ -159,8 +162,9 @@ module cs3220_syn
         .o_wb_ack(sseg_ack), .o_wb_stall(sseg_stall),
         .o_wb_data(sseg_data),
         .displays(ssegs),
-        .i_alt_data(perf_data),
-        .i_alt_sel(show_perf_counter)
+        .i_alt_data(displayed_perf_data),
+        .i_alt_sel(show_perf_counter),
+        .i_alt_en(perf_disp_en)
     );
 
     wb_switch_led sw_ed(

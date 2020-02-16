@@ -28,6 +28,8 @@ module execute_stage(
 
     localparam shift_pipelining=0;
 
+    reg inferred_halt;
+
     wire is_eq = rr_rs_val == rr_rt_val;
     wire is_lt = $signed(rr_rs_val) < $signed(rr_rt_val);
     wire is_le = is_eq || is_lt;
@@ -43,7 +45,7 @@ module execute_stage(
     assign inst_delay_stall = inst_was_stalling ? (inst_delay != 0):(curr_inst_delay != 0);
 
 
-    assign exec_stall = inst_delay_stall;
+    assign exec_stall = inst_delay_stall || inferred_halt;
     assign exec_flush = do_jump;
 
     wire shift_direction;
@@ -65,13 +67,32 @@ module execute_stage(
         .result(shift_result)
     );
 
+    perf_if inst_count();
+    perf_if cycle_count();
+
+    perf_mux2 perf_mux(
+        .a(inst_count),
+        .b(cycle_count),
+        .out(perf)
+    );
+
+
     perf_counter64#(
-        .ADDR(8'h01)
+        .ADDR(8'h02)
     )inst_counter(
         .i_clk,
         .i_reset,
-        .incr(!exec_stall),
-        .perf
+        .incr(!exec_stall && (rr_op != 0 || rr_altop != 0)),
+        .perf(inst_count)
+    );
+
+    perf_counter64#(
+        .ADDR(8'h04)
+    )cycle_counter(
+        .i_clk,
+        .i_reset,
+        .incr(!inferred_halt),
+        .perf(cycle_count)
     );
 
     reg [31:0] alu_result;
@@ -91,10 +112,10 @@ module execute_stage(
                 `EXTOP_NAND: alu_result = ~(rr_rs_val & rr_rt_val);
                 `EXTOP_NOR: alu_result = ~(rr_rs_val | rr_rt_val);
                 `EXTOP_NXOR: alu_result = ~(rr_rs_val ^ rr_rt_val);
-//                `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
-//                `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
-                `EXTOP_RSHF: alu_result = shift_result;
-                `EXTOP_LSHF: alu_result = shift_result;
+                `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
+                `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
+//                `EXTOP_RSHF: alu_result = shift_result;
+//                `EXTOP_LSHF: alu_result = shift_result;
                 default: alu_result = 32'h0;
             endcase
         end
@@ -120,7 +141,7 @@ module execute_stage(
 //        else case (rr_op)
 //            default: curr_inst_delay = 0;
 //        endcase
-        curr_inst_delay = rr_altop[4] ? shift_pipelining : 0; // BIG HACK. shift alt ops have bit4 set, nobody else does.
+        curr_inst_delay = rr_altop[4] ? shift_pipelining:0; // BIG HACK. shift alt ops have bit4 set, nobody else does.
     end
 
     wire is_jump = (
@@ -161,20 +182,27 @@ module execute_stage(
             exec_rd_val <= 0;
             inst_delay <= 0;
             inst_was_stalling <= 0;
-        end else if (inst_delay_stall) begin
-
-            if (inst_was_stalling) begin
-                if (inst_delay > 0)
-                    inst_delay <= inst_delay-1;
-            end else begin
-                inst_was_stalling <= 1;
-                inst_delay <= curr_inst_delay-1;
-            end
-
+            inferred_halt <= 0;
         end else begin
-            exec_rd <= rr_rd;
-            exec_rd_val <= alu_result;
-            inst_was_stalling <= 0;
+            // infer a halt if we jump into a forever single instruction loop
+            inferred_halt <= inferred_halt || (exec_ld_pc && (rr_pc == exec_br_pc));
+
+
+            if (inst_delay_stall) begin
+
+                if (inst_was_stalling) begin
+                    if (inst_delay > 0)
+                        inst_delay <= inst_delay-1;
+                end else begin
+                    inst_was_stalling <= 1;
+                    inst_delay <= curr_inst_delay-1;
+                end
+
+            end else begin
+                exec_rd <= rr_rd;
+                exec_rd_val <= alu_result;
+                inst_was_stalling <= 0;
+            end
         end
     end
 

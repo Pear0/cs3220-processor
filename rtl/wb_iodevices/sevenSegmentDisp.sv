@@ -1,5 +1,6 @@
-module sevenSegmentDisp(segs, data);
+module sevenSegmentDisp(segs, data, en);
 input [3:0] data;
+input en;
 output [6:0] segs;
 reg [6:0] leds;
 
@@ -7,7 +8,9 @@ assign segs = ~leds;
 
 always @(*)
 begin
-	case(data)
+	if (!en)
+		leds = 0;
+	else case(data)
 		4'h0: leds = 7'b1111110;
 		4'h1: leds = 7'b0110000;
 		4'h2: leds = 7'b1101101;

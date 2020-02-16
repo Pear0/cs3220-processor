@@ -8,9 +8,11 @@ module wb_sevenseg(
     o_wb_data,
     displays,
     i_alt_data,
+    i_alt_en,
     i_alt_sel
 );
     input wire i_alt_sel;
+    input wire [5:0] i_alt_en;
     input wire [31:0] i_alt_data;
     input	wire    i_clk, i_reset, i_wb_cyc, i_wb_stb, i_wb_we;
     input	wire	[29:0]	i_wb_addr;
@@ -44,13 +46,17 @@ module wb_sevenseg(
     wire [31:0] sseg_data;
     assign sseg_data = i_alt_sel ? i_alt_data : internal_data;
 
+    wire [5:0] disp_en;
+    assign disp_en = i_alt_sel ? i_alt_en : 6'hff;
+
+
 `ifndef VERILATOR
-    sevenSegmentDisp digit0(displays[0], sseg_data[3:0]);
-    sevenSegmentDisp digit1(displays[1], sseg_data[7:4]);
-    sevenSegmentDisp digit2(displays[2], sseg_data[11:8]);
-    sevenSegmentDisp digit3(displays[3], sseg_data[15:12]);
-    sevenSegmentDisp digit4(displays[4], sseg_data[19:16]);
-    sevenSegmentDisp digit5(displays[5], sseg_data[23:20]);
+    sevenSegmentDisp digit0(displays[0], sseg_data[3:0], disp_en[0]);
+    sevenSegmentDisp digit1(displays[1], sseg_data[7:4], disp_en[1]);
+    sevenSegmentDisp digit2(displays[2], sseg_data[11:8], disp_en[2]);
+    sevenSegmentDisp digit3(displays[3], sseg_data[15:12], disp_en[3]);
+    sevenSegmentDisp digit4(displays[4], sseg_data[19:16], disp_en[4]);
+    sevenSegmentDisp digit5(displays[5], sseg_data[23:20], disp_en[5]);
 `endif
 
 
