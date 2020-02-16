@@ -8,7 +8,9 @@ module core(
     input wire [31:0] wb_miso,
     output wire [3:0] wb_sel,
     input wire wb_ack, wb_stall, wb_err,
-    output wire [31:0] wb_mosi
+    output wire [31:0] wb_mosi,
+
+    perf_if perf
 );
 
     wire [31:0] mem_req_addr;
@@ -177,7 +179,9 @@ module core(
         .exec_of_val(fwd_exec_val),
 
         .exec_rd,
-        .exec_rd_val
+        .exec_rd_val,
+
+        .perf
     );
 
     memory_stage mem_stage(

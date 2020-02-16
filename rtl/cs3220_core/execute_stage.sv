@@ -21,10 +21,12 @@ module execute_stage(
     output wire [31:0] exec_of_val,
 
     output reg [3:0] exec_rd,
-    output reg [31:0] exec_rd_val
+    output reg [31:0] exec_rd_val,
+
+    perf_if perf
 );
 
-    localparam shift_pipelining = 0;
+    localparam shift_pipelining=0;
 
     wire is_eq = rr_rs_val == rr_rt_val;
     wire is_lt = $signed(rr_rs_val) < $signed(rr_rt_val);
@@ -61,6 +63,15 @@ module execute_stage(
         .distance(rr_rt_val[4:0]),
         .direction(shift_direction),
         .result(shift_result)
+    );
+
+    perf_counter64#(
+        .ADDR(8'h01)
+    )inst_counter(
+        .i_clk,
+        .i_reset,
+        .incr(!exec_stall),
+        .perf
     );
 
     reg [31:0] alu_result;
@@ -109,7 +120,7 @@ module execute_stage(
 //        else case (rr_op)
 //            default: curr_inst_delay = 0;
 //        endcase
-        curr_inst_delay = rr_altop[4]; // BIG HACK. shift alt ops have bit4 set, nobody else does.
+        curr_inst_delay = rr_altop[4] ? shift_pipelining : 0; // BIG HACK. shift alt ops have bit4 set, nobody else does.
     end
 
     wire is_jump = (
@@ -154,10 +165,10 @@ module execute_stage(
 
             if (inst_was_stalling) begin
                 if (inst_delay > 0)
-                    inst_delay <= inst_delay - 1;
+                    inst_delay <= inst_delay-1;
             end else begin
                 inst_was_stalling <= 1;
-                inst_delay <= curr_inst_delay - 1;
+                inst_delay <= curr_inst_delay-1;
             end
 
         end else begin

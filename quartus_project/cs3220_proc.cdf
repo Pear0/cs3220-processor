@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(5CEFA4F23) Path("/home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/quartus_project/") File("cs3220_proc.sof") MfrSpec(OpMask(1));
+		Device PartName(5CEFA4F23) Path("/vagrant/cs3220-pipeline/quartus_project/") File("cs3220_proc.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

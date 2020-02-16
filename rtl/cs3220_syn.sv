@@ -18,7 +18,24 @@ module cs3220_syn
     `endif
     );
 
-		
+
+    perf_if main_perf();
+
+    wire show_perf_counter;
+    assign show_perf_counter = i_switches[7:0] != 0;
+    wire [31:0] perf_data;
+
+    perf_watcher watcher(
+        .i_clk,
+        .i_reset,
+
+        .addr(i_switches[7:0]),
+        .data(perf_data),
+
+        .perf(main_perf)
+    );
+
+
 	wire i_clk;
 	wire locked;
 	 main_pll pll_yeet(
@@ -142,8 +159,8 @@ module cs3220_syn
         .o_wb_ack(sseg_ack), .o_wb_stall(sseg_stall),
         .o_wb_data(sseg_data),
         .displays(ssegs),
-        .i_alt_data(0),
-        .i_alt_sel(0)
+        .i_alt_data(perf_data),
+        .i_alt_sel(show_perf_counter)
     );
 
     wb_switch_led sw_ed(
@@ -180,7 +197,9 @@ module cs3220_syn
         .wb_ack,
         .wb_stall,
         .wb_err,
-        .wb_miso
+        .wb_miso,
+
+        .perf(main_perf)
     );
 
 endmodule: cs3220_syn
