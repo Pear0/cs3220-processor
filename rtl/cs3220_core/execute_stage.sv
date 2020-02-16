@@ -24,6 +24,8 @@ module execute_stage(
     output reg [31:0] exec_rd_val
 );
 
+    localparam shift_pipelining = 0;
+
     wire is_eq = rr_rs_val == rr_rt_val;
     wire is_lt = $signed(rr_rs_val) < $signed(rr_rt_val);
     wire is_le = is_eq || is_lt;
@@ -31,16 +33,42 @@ module execute_stage(
 
     reg do_jump;
 
+    // multi-cycle instruction support
+    reg [3:0] curr_inst_delay;
+    reg [3:0] inst_delay;
+    wire inst_delay_stall;
+    reg inst_was_stalling;
+    assign inst_delay_stall = inst_was_stalling ? (inst_delay != 0):(curr_inst_delay != 0);
 
-    assign exec_stall = 0;
+
+    assign exec_stall = inst_delay_stall;
     assign exec_flush = do_jump;
+
+    wire shift_direction;
+    assign shift_direction = (rr_altop == `EXTOP_RSHF);
+    wire [31:0] shift_result;
+
+    compat_shift#(
+        .WIDTH(32),
+        .WIDTHDIST(5),
+        .TYPE("ARITHMETIC"),
+        .PIPELINE(shift_pipelining)
+    ) shifter(
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .data(rr_rs_val),
+        .distance(rr_rt_val[4:0]),
+        .direction(shift_direction),
+        .result(shift_result)
+    );
 
     reg [31:0] alu_result;
 
     always @(*) begin
         if (rr_op == 6'h0) begin
             case (rr_altop)
-             `EXTOP_EQ: alu_result = {31'h0, is_eq};
+                `EXTOP_EQ: alu_result = {31'h0, is_eq};
                 `EXTOP_LT: alu_result = {31'h0, is_lt};
                 `EXTOP_LE: alu_result = {31'h0, is_le};
                 `EXTOP_NE: alu_result = {31'h0, is_ne};
@@ -52,19 +80,36 @@ module execute_stage(
                 `EXTOP_NAND: alu_result = ~(rr_rs_val & rr_rt_val);
                 `EXTOP_NOR: alu_result = ~(rr_rs_val | rr_rt_val);
                 `EXTOP_NXOR: alu_result = ~(rr_rs_val ^ rr_rt_val);
-                `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
-                `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
+//                `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
+//                `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
+                `EXTOP_RSHF: alu_result = shift_result;
+                `EXTOP_LSHF: alu_result = shift_result;
                 default: alu_result = 32'h0;
             endcase
         end
         else case (rr_op)
-        `OPCODE_ADDI: alu_result = rr_rs_val+rr_imm32;
+            `OPCODE_ADDI: alu_result = rr_rs_val+rr_imm32;
             `OPCODE_ANDI: alu_result = rr_rs_val & rr_imm32;
             `OPCODE_ORI: alu_result = rr_rs_val | rr_imm32;
             `OPCODE_XORI: alu_result = rr_rs_val ^ rr_imm32;
             `OPCODE_JAL: alu_result = rr_pc+4;
             default: alu_result = 32'h0;
         endcase
+    end
+
+    // Instruction multi cycle delay does not properly work for branch instructions.
+    always @(*) begin
+//        if (rr_op == 6'h0) begin
+//            case (rr_altop)
+//                `EXTOP_RSHF: curr_inst_delay = shift_pipelining;
+//                `EXTOP_LSHF: curr_inst_delay = shift_pipelining;
+//                default: curr_inst_delay = 0;
+//            endcase
+//        end
+//        else case (rr_op)
+//            default: curr_inst_delay = 0;
+//        endcase
+        curr_inst_delay = rr_altop[4]; // BIG HACK. shift alt ops have bit4 set, nobody else does.
     end
 
     wire is_jump = (
@@ -103,9 +148,22 @@ module execute_stage(
         if (i_reset) begin
             exec_rd <= 0;
             exec_rd_val <= 0;
+            inst_delay <= 0;
+            inst_was_stalling <= 0;
+        end else if (inst_delay_stall) begin
+
+            if (inst_was_stalling) begin
+                if (inst_delay > 0)
+                    inst_delay <= inst_delay - 1;
+            end else begin
+                inst_was_stalling <= 1;
+                inst_delay <= curr_inst_delay - 1;
+            end
+
         end else begin
             exec_rd <= rr_rd;
             exec_rd_val <= alu_result;
+            inst_was_stalling <= 0;
         end
     end
 
