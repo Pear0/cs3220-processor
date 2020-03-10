@@ -67,10 +67,18 @@ reg [31:0] next_pc;
 -----------------------------------------------
 */
 
+reg [0:0] valid [256];
 reg [21:0] tag      [256];
 reg [31:0] target   [256];
 
 reg [21:0] i_tag;
+
+generate
+genvar i;
+for (i = 0; i < 256; i = i + 1) begin : gen_reset
+    initial valid[i] = 0;
+end
+endgenerate
 
 always @(*) begin
     i_tag = r_pc[31:10];
@@ -78,15 +86,23 @@ end
 
 wire [7:0] load_index = rr_pc[9:2];
 
+reg [7:0] reset_cntr;
+initial reset_cntr = 0;
+
 always @(posedge i_clk) begin
-    if (exec_ld_pc) begin
+    if (i_reset) begin
+        valid[reset_cntr] <= 0;
+        reset_cntr <= reset_cntr + 1;
+    end
+    else if (exec_ld_pc) begin
+        valid[load_index] <= 1'b1;
         tag[load_index] <= rr_pc[31:10];
         target[load_index] <= exec_br_pc;
     end
 end
 
 always @(*) begin
-if (tag[btb_index] == i_tag) begin
+if (tag[btb_index] == i_tag && valid[btb_index]) begin
     next_pc = target[btb_index];
 end
 else begin
