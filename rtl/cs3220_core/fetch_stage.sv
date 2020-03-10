@@ -21,6 +21,7 @@ module fetch_stage(
 );
 
 reg [31:0] r_pc;
+reg [7:0] btb_index;
 initial r_pc = 32'h100;
 
 assign mem_req_addr = r_pc;
@@ -31,31 +32,67 @@ always @(posedge i_clk) begin
         fetch_inst <= 32'h0;
         if (exec_ld_pc) begin
             r_pc <= exec_br_pc;
+            btb_index <= exec_br_pc[9:2];
         end else begin
             fetch_pc <= 32'h0;
             r_pc <= 32'h100;
+            btb_index <= 8'h0;
         end
     end 
     // Assuming memory always respond immediately
     else if (!decode_stall) begin
         r_pc <= next_pc;
+        btb_index <= next_pc[9:2];
         fetch_inst <= mem_req_data;
         fetch_pc <= r_pc;
     end
 end
 
-wire [31:0] next_pc;
+reg [31:0] next_pc;
 
-btb lol(
-    .i_clk(i_clk), .i_reset(i_reset),
-    .pc(r_pc),
+// btb lol(
+//     .i_clk(i_clk), .i_reset(i_reset),
+//     .pc(r_pc),
 
-    .load(exec_ld_pc),
-    .ld_addr(rr_pc), 
-    .ld_target(exec_br_pc),
+//     .load(exec_ld_pc),
+//     .ld_addr(rr_pc), 
+//     .ld_target(exec_br_pc),
 
-    .next_pc(next_pc)
-);
+//     .next_pc(next_pc)
+// );
+
+/*
+31--------------------------------------------0
+| TAG [31:10]                 |INDEX[7:2]|2'b0|
+-----------------------------------------------
+*/
+
+reg [21:0] tag      [256];
+reg [31:0] target   [256];
+
+reg [21:0] i_tag;
+
+always @(*) begin
+    i_tag = r_pc[31:10];
+end
+
+wire [7:0] load_index = rr_pc[9:2];
+
+always @(posedge i_clk) begin
+    if (exec_ld_pc) begin
+        tag[load_index] <= rr_pc[31:10];
+        target[load_index] <= exec_br_pc;
+    end
+end
+
+always @(*) begin
+if (tag[btb_index] == i_tag) begin
+    next_pc = target[btb_index];
+end
+else begin
+    next_pc = r_pc + 4;
+end
+end
 
 
 endmodule : fetch_stage

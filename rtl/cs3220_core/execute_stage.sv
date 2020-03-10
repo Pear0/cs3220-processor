@@ -11,6 +11,7 @@ module execute_stage(
     input wire [31:0] rr_rs_val, rr_rt_val,
     input wire [31:0] rr_imm32,
 	input wire [31:0] rr_pc_inc,
+    input wire [0:0] rr_next_is_cont,
 
     input wire [31:0] decode_pc,
 
@@ -183,7 +184,7 @@ module execute_stage(
             default: do_jump = 1'bx;
         endcase
     end
-    assign exec_ld_pc = is_jump && (decode_pc != (do_jump ? branch_target_pc : (rr_pc_inc)));
+    assign exec_ld_pc = is_jump && (do_jump ? (decode_pc != branch_target_pc) : !rr_next_is_cont);
     assign exec_br_pc = do_jump ? branch_target_pc : (rr_pc_inc);
     // Operand Fwd
     assign exec_of_reg = rr_rd;

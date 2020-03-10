@@ -119,7 +119,7 @@ module core(
         .dataO2(dprf_rb_val),
         .dataI(wr_data)
     );
-
+    wire rr_next_is_cont;
     register_stage rr(
         .i_clk,
         .i_reset,
@@ -131,7 +131,7 @@ module core(
         .decode_rs,
         .decode_rt,
         .decode_imm32,
-        .rr_pc_inc,
+        .fetch_pc,
 
         .rr_pc,
         .rr_op,
@@ -140,6 +140,8 @@ module core(
         .rr_rs_val,
         .rr_rt_val,
         .rr_imm32,
+        .rr_pc_inc,
+        .rr_next_is_cont,
 
         .rr_stall,
         .rr_flush,
@@ -172,6 +174,7 @@ module core(
         .rr_rt_val,
         .rr_imm32,
         .rr_pc_inc,
+        .rr_next_is_cont,
 
         .decode_pc,
 
