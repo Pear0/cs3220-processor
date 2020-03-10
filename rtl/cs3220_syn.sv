@@ -41,12 +41,17 @@ module cs3220_syn
 
 	wire i_clk;
 	wire locked;
+    `ifndef VERILATOR
 	 main_pll pll_yeet(
 		i_sys_clk,   //  refclk.clk
 		0,      //   reset.reset
 		i_clk, // outclk0.clk
 		locked    //  locked.export
 	);
+    `else
+        assign i_clk = i_sys_clk;
+        assign locked = 1'b1;
+    `endif
 	 
     reg i_reset;
 	 `ifdef VERILATOR

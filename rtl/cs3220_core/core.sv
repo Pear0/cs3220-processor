@@ -66,7 +66,8 @@ module core(
 
         .exec_ld_pc,
         .exec_br_pc,
-
+        .rr_pc,
+        
         .decode_stall,
         .decode_flush,
 
@@ -168,6 +169,8 @@ module core(
         .rr_rs_val,
         .rr_rt_val,
         .rr_imm32,
+
+        .decode_pc,
 
         .exec_stall,
         .exec_flush,

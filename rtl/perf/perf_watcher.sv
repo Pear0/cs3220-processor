@@ -30,7 +30,7 @@ module perf_watcher#(
         else if (refresh_counter != 0)
             refresh_counter <= refresh_counter-1;
         else begin
-            data <= {state, 4'b0, wait_counter, refresh_counter[7:0]};
+            data <= {state, 12'b0, wait_counter, refresh_counter[7:0]};
 
             if (state == S_IDLE) begin
                 perf.addr <= addr;

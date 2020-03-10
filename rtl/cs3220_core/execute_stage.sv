@@ -11,6 +11,8 @@ module execute_stage(
     input wire [31:0] rr_rs_val, rr_rt_val,
     input wire [31:0] rr_imm32,
 
+    input wire [31:0] decode_pc,
+
     output wire exec_stall,
     output wire exec_flush,
 
@@ -52,6 +54,7 @@ module execute_stage(
     assign shift_direction = (rr_altop == `EXTOP_RSHF);
     wire [31:0] shift_result;
 
+`ifndef VERILATOR
     compat_shift#(
         .WIDTH(32),
         .WIDTHDIST(5),
@@ -66,6 +69,13 @@ module execute_stage(
         .direction(shift_direction),
         .result(shift_result)
     );
+`else
+    assign shift_result = shift_direction ? (
+        rr_rs_val << rr_rt_val[4:0]
+    ) : (
+        $signed($signed(rr_rs_val) >>> rr_rt_val[4:0])
+    );
+`endif
 
     perf_if inst_count();
     perf_if cycle_count();
@@ -170,7 +180,7 @@ module execute_stage(
             default: do_jump = 0;
         endcase
     end
-    assign exec_ld_pc = do_jump;
+    assign exec_ld_pc = do_jump && (decode_pc != (do_jump ? exec_br_pc : (rr_pc + 4)));
 
     // Operand Fwd
     assign exec_of_reg = rr_rd;

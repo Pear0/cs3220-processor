@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 
   tb->reset();
 
-  while (!tb->done() && (!(DO_TRACE) || tb->m_tickcount < 500 * 200)) {
+  while (!tb->done() && (!(DO_TRACE) || tb->m_tickcount < 500 * 20)) {
     tb->tick();
   }
 

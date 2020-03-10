@@ -204,6 +204,8 @@ set_location_assignment PIN_U7 -to i_keys[0]
 set_location_assignment PIN_W9 -to i_keys[1]
 set_location_assignment PIN_M7 -to i_keys[2]
 set_location_assignment PIN_M6 -to i_keys[3]
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/btb.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/compat/compat_divide.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_if.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_counter.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_counter64.sv

@@ -1,26 +1,48 @@
 [*]
-[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Feb 11 02:30:26 2020
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Tue Mar 10 00:48:10 2020
 [*]
-[dumpfile] "/home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/cmake-build-debug/trace.vcd"
-[dumpfile_mtime] "Tue Feb 11 02:25:17 2020"
-[dumpfile_size] 21854524
+[dumpfile] "/home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/build/trace.vcd"
+[dumpfile_mtime] "Tue Mar 10 00:47:53 2020"
+[dumpfile_size] 5882531
 [savefile] "/home/codetector/projects/github.gatech.edu/yfeng317/cs3220-pipeline/verilator/Untitled.gtkw"
 [timestart] 8
-[size] 2556 1396
+[size] 1916 1029
 [pos] -1 -1
-*-4.000000 104 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.000000 55 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.cs3220_syn.
 [treeopen] TOP.cs3220_syn.core.
+[treeopen] TOP.cs3220_syn.core.fetch.
+[treeopen] TOP.cs3220_syn.watcher.
 [sst_width] 211
-[signals_width] 256
+[signals_width] 345
 [sst_expanded] 1
 [sst_vpaned_height] 406
 @28
 TOP.cs3220_syn.i_clk
 TOP.cs3220_syn.i_reset
-@200
+@800200
+-BTB
+@28
+TOP.cs3220_syn.core.fetch.lol.i_clk
+@29
+TOP.cs3220_syn.core.fetch.lol.i_reset
+@22
+TOP.cs3220_syn.core.fetch.lol.i_tag[23:0]
+TOP.cs3220_syn.core.fetch.lol.index[7:0]
+TOP.cs3220_syn.core.fetch.lol.ld_addr[31:0]
+TOP.cs3220_syn.core.fetch.lol.ld_target[31:0]
+@28
+TOP.cs3220_syn.core.fetch.lol.load
+@22
+TOP.cs3220_syn.core.fetch.lol.load_index[7:0]
+TOP.cs3220_syn.core.fetch.lol.next_pc[31:0]
+TOP.cs3220_syn.core.fetch.lol.pc[31:0]
+TOP.cs3220_syn.core.fetch.lol.valid[255:0]
+@1000200
+-BTB
+@800200
 -Fetch
 @22
 [color] 2
@@ -51,6 +73,10 @@ TOP.cs3220_syn.core.fetch.decode_flush
 @22
 TOP.cs3220_syn.core.fetch.fetch_pc[31:0]
 TOP.cs3220_syn.core.fetch.fetch_inst[31:0]
+@1000200
+-Fetch
+@c00200
+-decode
 @200
 -Decode
 @28
@@ -58,7 +84,7 @@ TOP.cs3220_syn.core.decode.decode_stall
 TOP.cs3220_syn.core.decode.decode_flush
 @200
 -Decode Buffer
-@29
+@28
 TOP.cs3220_syn.core.decode.decode_op[5:0]
 TOP.cs3220_syn.core.decode.decode_altop[7:0]
 @22
@@ -66,10 +92,13 @@ TOP.cs3220_syn.core.decode.decode_rd[3:0]
 TOP.cs3220_syn.core.decode.decode_rs[3:0]
 TOP.cs3220_syn.core.decode.decode_rt[3:0]
 TOP.cs3220_syn.core.decode.decode_imm32[31:0]
+@1401200
+-decode
 @200
 -Register Read
 -Execute
--Registers
+@c00200
+-GPRs
 @22
 TOP.cs3220_syn.core.dprf.registers(0)[31:0]
 TOP.cs3220_syn.core.dprf.registers(1)[31:0]
@@ -87,5 +116,7 @@ TOP.cs3220_syn.core.dprf.registers(12)[31:0]
 TOP.cs3220_syn.core.dprf.registers(13)[31:0]
 TOP.cs3220_syn.core.dprf.registers(14)[31:0]
 TOP.cs3220_syn.core.dprf.registers(15)[31:0]
+@1401200
+-GPRs
 [pattern_trace] 1
 [pattern_trace] 0
