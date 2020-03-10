@@ -10,6 +10,7 @@ module execute_stage(
     input wire [3:0] rr_rd,
     input wire [31:0] rr_rs_val, rr_rt_val,
     input wire [31:0] rr_imm32,
+	input wire [31:0] rr_pc_inc,
 
     input wire [31:0] decode_pc,
 
@@ -48,7 +49,7 @@ module execute_stage(
 
 
     assign exec_stall = inst_delay_stall || inferred_halt;
-    assign exec_flush = do_jump;
+    assign exec_flush = exec_ld_pc;
 
     wire shift_direction;
     assign shift_direction = (rr_altop == `EXTOP_RSHF);
@@ -162,11 +163,13 @@ module execute_stage(
             rr_op == `OPCODE_BNE
         );
 
+    reg [31:0] branch_target_pc;
+
     // Branch Target PC
     always @(*) begin
         case (rr_op)
-        `OPCODE_JAL: exec_br_pc = rr_imm32+rr_rs_val;
-            default: exec_br_pc = rr_imm32;
+        `OPCODE_JAL: branch_target_pc = rr_imm32+rr_rs_val;
+            default: branch_target_pc = rr_imm32;
         endcase
     end
 
@@ -177,11 +180,11 @@ module execute_stage(
             `OPCODE_BLT: do_jump = is_lt;
             `OPCODE_BLE: do_jump = is_le;
             `OPCODE_BNE: do_jump = is_ne;
-            default: do_jump = 0;
+            default: do_jump = 1'bx;
         endcase
     end
-    assign exec_ld_pc = do_jump && (decode_pc != (do_jump ? exec_br_pc : (rr_pc + 4)));
-
+    assign exec_ld_pc = is_jump && (decode_pc != (do_jump ? branch_target_pc : (rr_pc_inc)));
+    assign exec_br_pc = do_jump ? branch_target_pc : (rr_pc_inc);
     // Operand Fwd
     assign exec_of_reg = rr_rd;
     assign exec_of_val = alu_result;

@@ -33,6 +33,7 @@ module core(
     wire [31:0] fwd_exec_val, fwd_mem_val, fwd_a_val, fwd_b_val;
 
     wire [31:0] rr_pc;
+    wire [31:0] rr_pc_inc;
     wire [5:0] rr_op;
     wire [7:0] rr_altop;
     wire [3:0] rr_rd;
@@ -130,6 +131,7 @@ module core(
         .decode_rs,
         .decode_rt,
         .decode_imm32,
+        .rr_pc_inc,
 
         .rr_pc,
         .rr_op,
@@ -169,6 +171,7 @@ module core(
         .rr_rs_val,
         .rr_rt_val,
         .rr_imm32,
+        .rr_pc_inc,
 
         .decode_pc,
 
