@@ -28,9 +28,9 @@ assign mem_req_addr = r_pc;
 assign mem_req_stb = 1'b1;
 
 always @(posedge i_clk) begin
-    if (i_reset || decode_flush) begin
+    if (i_reset || exec_ld_pc) begin
         fetch_inst <= 32'h0;
-        if (exec_ld_pc) begin
+        if (decode_flush) begin
             r_pc <= exec_br_pc;
             btb_index <= exec_br_pc[9:2];
         end else begin
@@ -50,59 +50,33 @@ end
 
 reg [31:0] next_pc;
 
-// btb lol(
-//     .i_clk(i_clk), .i_reset(i_reset),
-//     .pc(r_pc),
-
-//     .load(exec_ld_pc),
-//     .ld_addr(rr_pc), 
-//     .ld_target(exec_br_pc),
-
-//     .next_pc(next_pc)
-// );
-
 /*
 31--------------------------------------------0
 | TAG [31:10]                 |INDEX[7:2]|2'b0|
 -----------------------------------------------
 */
-
-reg [0:0] valid [256];
-reg [21:0] tag      [256];
 reg [31:0] target   [256];
-
-reg [21:0] i_tag;
-
-generate
-genvar i;
-for (i = 0; i < 256; i = i + 1) begin : gen_reset
-    initial valid[i] = 0;
-end
-endgenerate
-
-always @(*) begin
-    i_tag = r_pc[31:10];
-end
+reg [0:0] confidence [256];
 
 wire [7:0] load_index = rr_pc[9:2];
 
-reg [7:0] reset_cntr;
-initial reset_cntr = 0;
-
 always @(posedge i_clk) begin
-    if (i_reset) begin
-        valid[reset_cntr] <= 0;
-        reset_cntr <= reset_cntr + 1;
-    end
-    else if (exec_ld_pc) begin
-        valid[load_index] <= 1'b1;
-        tag[load_index] <= rr_pc[31:10];
-        target[load_index] <= exec_br_pc;
+    if (exec_ld_pc) begin
+        if (confidence[load_index] == 0) begin
+            target[load_index] <= exec_br_pc;
+            confidence[load_index] <= 1;
+        end else begin
+            confidence[load_index] <= 0;
+        end
+    end else begin
+        confidence[load_index] <= 1;
     end
 end
 
+wire is_br = mem_req_data[31:29] == 3'b001;
+
 always @(*) begin
-if (tag[btb_index] == i_tag && valid[btb_index]) begin
+if (is_br) begin
     next_pc = target[btb_index];
 end
 else begin

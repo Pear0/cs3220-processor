@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
   ram[3] = 0x08403000;
 #endif
 
-#define DO_TRACE 1
+#define DO_TRACE 0
 
 //  tb->m_core->tl45_comp__DOT__dprf__DOT__registers[4] = 0;
 //  tb->m_core->tl45_comp__DOT__dprf__DOT__registers[7] = 0x80000000;
@@ -133,10 +133,27 @@ int main(int argc, char **argv) {
 #endif
 
   tb->reset();
+  uint64_t branch_cnt = 0, branch_miss_cnt = 0;
 
-  while (!tb->done() && (!(DO_TRACE) || tb->m_tickcount < 500 * 200)) {
+  while (!tb->done() && (tb->m_tickcount < 500 * 20000)) {
     tb->tick();
+    if (tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__is_br) {
+      branch_cnt++;
+#if DO_TRACE
+      printf("Branch at 0x%08X: predicting to 0x%08X\n", tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__mem_req_addr, tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__next_pc);
+#endif
+    }
+    if (tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__exec_ld_pc) {
+      branch_miss_cnt++;
+#if DO_TRACE
+      printf("Branch predict fail: 0x%08X to 0x%08X\n", tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__rr_pc, tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__exec_br_pc );
+#endif
+    }
+    if (tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__next_pc == tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__r_pc)
+      break;
   }
+
+  printf("Total Branch: %d, miss:%d, pecent: %%%.4f", branch_cnt, branch_miss_cnt, ((double)branch_miss_cnt*100)/branch_cnt);
 
   exit(EXIT_SUCCESS);
 }

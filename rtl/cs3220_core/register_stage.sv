@@ -52,7 +52,7 @@ module register_stage(
         end
         else if (!exec_stall) begin
             rr_pc_inc <= decode_pc + 4;
-            rr_next_is_cont <= (decode_pc == fetch_pc + 4); // No reset, because there is no point
+            rr_next_is_cont <= (decode_pc + 4 == fetch_pc); // No reset, because there is no point
             rr_pc <= decode_pc;
             rr_op <= decode_op;
             rr_altop <= decode_altop;

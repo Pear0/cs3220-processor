@@ -181,7 +181,7 @@ module execute_stage(
             `OPCODE_BLT: do_jump = is_lt;
             `OPCODE_BLE: do_jump = is_le;
             `OPCODE_BNE: do_jump = is_ne;
-            default: do_jump = 1'bx;
+            default: do_jump = 1'b0;
         endcase
     end
     assign exec_ld_pc = is_jump && (do_jump ? (decode_pc != branch_target_pc) : !rr_next_is_cont);
