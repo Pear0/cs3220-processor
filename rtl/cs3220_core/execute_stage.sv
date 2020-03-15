@@ -190,16 +190,31 @@ module execute_stage(
     assign exec_of_reg = rr_rd;
     assign exec_of_val = alu_result;
 
+    // Determine an inferred halt one cycle too late to optimize timing.
+    reg ih_exec_ld_pc;
+    reg [31:0] ih_pc;
+    reg [31:0] ih_br_pc;
+    wire should_infer_halt;
+    assign should_infer_halt = ih_exec_ld_pc && (ih_pc == ih_br_pc);
+
     always @(posedge i_clk) begin
         if (i_reset) begin
             exec_rd <= 0;
             exec_rd_val <= 0;
             inst_delay <= 0;
             inst_was_stalling <= 0;
+            ih_exec_ld_pc <= 0;
+            ih_pc <= 0;
+            ih_br_pc <= 0;
             inferred_halt <= 0;
         end else begin
             // infer a halt if we jump into a forever single instruction loop
-            inferred_halt <= inferred_halt || (exec_ld_pc && (rr_pc == exec_br_pc));
+
+            ih_exec_ld_pc <= exec_ld_pc;
+            ih_pc <= rr_pc;
+            ih_br_pc <= exec_br_pc;
+            // next cycle
+            inferred_halt <= inferred_halt || should_infer_halt;
 
 
             if (inst_delay_stall) begin
