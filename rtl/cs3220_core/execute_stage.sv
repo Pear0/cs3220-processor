@@ -30,15 +30,14 @@ module execute_stage(
     perf_if perf
 );
 
-    localparam shift_pipelining=0;
+    localparam internal_pipeline=0;
 
     reg inferred_halt;
-
     wire is_eq, is_lt, is_le, is_ne, is_gt, is_gte;
 
     compat_compare #(
         .WIDTH(32),
-        .PIPELINE(0)
+        .PIPELINE(internal_pipeline)
     ) cmp (
         .clock(i_clk),
         .aclr(0),
@@ -53,22 +52,9 @@ module execute_stage(
         .ageb(is_gte)
     );
 
-//    wire is_eq = rr_rs_val == rr_rt_val;
-//    wire is_lt = $signed(rr_rs_val) < $signed(rr_rt_val);
-//    wire is_le = is_eq || is_lt;
-//    wire is_ne = !is_eq;
-
     reg do_jump;
 
-    // multi-cycle instruction support
-    reg [3:0] curr_inst_delay;
-    reg [3:0] inst_delay;
-    wire inst_delay_stall;
-    reg inst_was_stalling;
-    assign inst_delay_stall = inst_was_stalling ? (inst_delay != 0):(curr_inst_delay != 0);
-
-
-    assign exec_stall = inst_delay_stall || inferred_halt;
+    assign exec_stall = inferred_halt;
     assign exec_flush = exec_ld_pc;
 
     wire shift_direction;
@@ -86,12 +72,11 @@ module execute_stage(
     wire [31:0] or_imm_result;
     wire [31:0] xor_imm_result;
 
-//`ifndef VERILATOR
     compat_shift#(
         .WIDTH(32),
         .WIDTHDIST(5),
         .TYPE("ARITHMETIC"),
-        .PIPELINE(shift_pipelining)
+        .PIPELINE(internal_pipeline)
     ) shifter(
         .clock(i_clk),
         .aclr(0),
@@ -101,17 +86,10 @@ module execute_stage(
         .direction(shift_direction),
         .result(shift_result)
     );
-//`else
-//    assign shift_result = shift_direction ? (
-//        rr_rs_val << rr_rt_val[4:0]
-//    ) : (
-//        $signed($signed(rr_rs_val) >>> rr_rt_val[4:0])
-//    );
-//`endif
 
     compat_add #(
         .WIDTH(32),
-        .PIPELINE(0)
+        .PIPELINE(internal_pipeline)
     ) add (
         .clock(i_clk),
         .aclr(0),
@@ -123,7 +101,7 @@ module execute_stage(
 
     compat_add #(
         .WIDTH(32),
-        .PIPELINE(0)
+        .PIPELINE(internal_pipeline)
     ) add_imm (
         .clock(i_clk),
         .aclr(0),
@@ -135,7 +113,7 @@ module execute_stage(
 
     compat_sub #(
         .WIDTH(32),
-        .PIPELINE(0)
+        .PIPELINE(internal_pipeline)
     ) sub (
         .clock(i_clk),
         .aclr(0),
@@ -147,7 +125,7 @@ module execute_stage(
 
     compat_bitwise #(
         .WIDTH(32),
-        .PIPELINE(0)
+        .PIPELINE(internal_pipeline)
     ) bitwise (
         .clock(i_clk),
         .aclr(0),
@@ -161,7 +139,7 @@ module execute_stage(
 
     compat_bitwise #(
         .WIDTH(32),
-        .PIPELINE(0)
+        .PIPELINE(internal_pipeline)
     ) bitwise_imm (
         .clock(i_clk),
         .aclr(0),
@@ -173,7 +151,6 @@ module execute_stage(
         .result_xor(xor_imm_result)
     );
 
-
     perf_if inst_count();
     perf_if cycle_count();
 
@@ -182,7 +159,6 @@ module execute_stage(
         .b(cycle_count),
         .out(perf)
     );
-
 
     perf_counter64#(
         .ADDR(8'h02)
@@ -203,7 +179,6 @@ module execute_stage(
     );
 
     reg [31:0] alu_result;
-
     always @(*) begin
         if (rr_op == 6'h0) begin
             case (rr_altop)
@@ -236,31 +211,9 @@ module execute_stage(
         endcase
     end
 
-    // Instruction multi cycle delay does not properly work for branch instructions.
-    always @(*) begin
-//        if (rr_op == 6'h0) begin
-//            case (rr_altop)
-//                `EXTOP_RSHF: curr_inst_delay = shift_pipelining;
-//                `EXTOP_LSHF: curr_inst_delay = shift_pipelining;
-//                default: curr_inst_delay = 0;
-//            endcase
-//        end
-//        else case (rr_op)
-//            default: curr_inst_delay = 0;
-//        endcase
-        curr_inst_delay = rr_altop[4] ? shift_pipelining:0; // BIG HACK. shift alt ops have bit4 set, nobody else does.
-    end
-
-    wire is_jump = (
-        rr_op == `OPCODE_JAL ||
-            rr_op == `OPCODE_BEQ ||
-            rr_op == `OPCODE_BLT ||
-            rr_op == `OPCODE_BLE ||
-            rr_op == `OPCODE_BNE
-        );
+    wire is_jump = (rr_op[5:3] == 3'b001);
 
     reg [31:0] branch_target_pc;
-
     // Branch Target PC
     always @(*) begin
         case (rr_op)
@@ -296,37 +249,22 @@ module execute_stage(
         if (i_reset) begin
             exec_rd <= 0;
             exec_rd_val <= 0;
-            inst_delay <= 0;
-            inst_was_stalling <= 0;
             ih_exec_ld_pc <= 0;
             ih_pc <= 0;
             ih_br_pc <= 0;
             inferred_halt <= 0;
-        end else begin
+        end
+        else if (!inferred_halt) begin
             // infer a halt if we jump into a forever single instruction loop
 
             ih_exec_ld_pc <= exec_ld_pc;
             ih_pc <= rr_pc;
             ih_br_pc <= exec_br_pc;
             // next cycle
-            inferred_halt <= inferred_halt || should_infer_halt;
+            inferred_halt <= should_infer_halt;
 
-
-            if (inst_delay_stall) begin
-
-                if (inst_was_stalling) begin
-                    if (inst_delay > 0)
-                        inst_delay <= inst_delay-1;
-                end else begin
-                    inst_was_stalling <= 1;
-                    inst_delay <= curr_inst_delay-1;
-                end
-
-            end else begin
-                exec_rd <= rr_rd;
-                exec_rd_val <= alu_result;
-                inst_was_stalling <= 0;
-            end
+            exec_rd <= rr_rd;
+            exec_rd_val <= alu_result;
         end
     end
 
