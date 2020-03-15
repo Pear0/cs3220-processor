@@ -10,7 +10,6 @@ module register_stage(
     input wire [3:0] decode_rd, decode_rs, decode_rt,
     input wire [31:0] decode_imm32,
     input wire [31:0] decode_predicted_pc,
-    input wire [31:0] fetch_pc,
 
     // Outgoing pipeline
     output reg [31:0] rr_pc,
@@ -62,7 +61,7 @@ module register_stage(
         end
         else if (!exec_stall) begin
             rr_pc_inc <= decode_pc + 4;
-            rr_next_is_cont <= (decode_pc + 4 == fetch_pc); // No reset, because there is no point
+            rr_next_is_cont <= (decode_pc + 4 == decode_predicted_pc); // No reset, because there is no point
             rr_pc <= decode_pc;
             rr_op <= decode_op;
             rr_altop <= decode_altop;

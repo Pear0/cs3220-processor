@@ -15,8 +15,6 @@ module execute_stage(
     input wire [0:0] rr_next_is_cont,
     input wire [31:0] rr_predicted_pc,
 
-    input wire [31:0] decode_pc,
-
     output wire exec_stall,
     output wire exec_flush,
 

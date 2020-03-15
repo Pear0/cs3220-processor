@@ -137,7 +137,6 @@ module core(
         .decode_rt,
         .decode_imm32,
         .decode_predicted_pc,
-        .fetch_pc,
 
         .rr_pc,
         .rr_op,
@@ -187,8 +186,6 @@ module core(
         .rr_pc_inc,
         .rr_next_is_cont,
         .rr_predicted_pc,
-
-        .decode_pc,
 
         .exec_stall,
         .exec_flush,
