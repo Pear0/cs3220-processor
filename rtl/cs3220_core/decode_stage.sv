@@ -4,14 +4,15 @@
 module decode_stage
 (
     i_clk, i_reset,
-    fetch_pc, fetch_inst,
+    fetch_pc, fetch_inst, fetch_predicted_pc,
 
     rr_stall, rr_flush,
     decode_stall, decode_flush,
 
     decode_pc, decode_op, decode_altop,
     decode_rd, decode_rs, decode_rt,
-    decode_imm32
+    decode_imm32,
+    decode_predicted_pc
 );
 // =============================
 // DECODE OUTPUT
@@ -20,7 +21,7 @@ module decode_stage
     OP, AltOp, Rd, Rs, Rt, Imm32, Pc
 */
 input wire i_clk, i_reset;
-input wire [31:0] fetch_pc, fetch_inst;
+input wire [31:0] fetch_pc, fetch_inst, fetch_predicted_pc;
 
 input wire rr_stall, rr_flush;
 output wire decode_stall, decode_flush;
@@ -39,6 +40,7 @@ output reg [5:0] decode_op;
 output reg [7:0] decode_altop;
 output reg [3:0] decode_rd, decode_rs, decode_rt;
 output reg [31:0] decode_imm32;
+output reg [31:0] decode_predicted_pc;
 
 always @(posedge i_clk) begin
     if (i_reset || rr_flush) begin
@@ -49,11 +51,13 @@ always @(posedge i_clk) begin
         decode_rs <= 0;
         decode_rt <= 0;
         decode_imm32 <= 0;
+        decode_predicted_pc <= 0;
     end 
     else if (!rr_stall) begin
         decode_pc <= fetch_pc;
         decode_op <= i_op;
         decode_altop <= i_altop;
+        decode_predicted_pc <= fetch_predicted_pc;
         if (i_op == 6'h0) begin
             decode_rd <= i_rd;
             decode_rs <= i_rs;
@@ -104,4 +108,4 @@ always @(posedge i_clk) begin
 end
 
 
-endmodule
+endmodule : decode_stage

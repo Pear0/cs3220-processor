@@ -4,9 +4,10 @@ module fetch_stage(
     input wire i_clk, i_reset,
 
     output reg [31:0] fetch_pc,
+    output reg [31:0] fetch_predicted_pc,
     output reg [31:0] fetch_inst,
 
-    input wire [31:0] rr_pc,
+    input wire [31:0] exec_br_origin,
     input wire exec_ld_pc,
     input wire [31:0] exec_br_pc,
 
@@ -58,7 +59,7 @@ reg [31:0] next_pc;
 reg [31:0] target   [256];
 reg [0:0] confidence [256];
 
-wire [7:0] load_index = rr_pc[9:2];
+wire [7:0] load_index = exec_br_origin[9:2];
 
 always @(posedge i_clk) begin
     if (exec_ld_pc) begin
@@ -74,6 +75,8 @@ always @(posedge i_clk) begin
 end
 
 wire is_br = mem_req_data[31:29] == 3'b001;
+
+assign fetch_predicted_pc = r_pc;
 
 always @(*) begin
 if (is_br) begin

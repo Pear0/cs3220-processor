@@ -13,6 +13,7 @@ module execute_stage(
     input wire [31:0] rr_imm32,
 	input wire [31:0] rr_pc_inc,
     input wire [0:0] rr_next_is_cont,
+    input wire [31:0] rr_predicted_pc,
 
     input wire [31:0] decode_pc,
 
@@ -20,6 +21,7 @@ module execute_stage(
     output wire exec_flush,
 
     output reg [31:0] exec_br_pc,
+    output reg [31:0] exec_br_origin,
     output wire exec_ld_pc,
 
     output wire [3:0] exec_of_reg,
@@ -240,6 +242,18 @@ module execute_stage(
         .out(out_next_is_cont)
     );
 
+     wire [31:0] out_predicted_pc;
+    compat_delay #(
+        .WIDTH(32),
+        .PIPELINE(internal_pipeline)
+    ) predicted_pc_delay (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .in(rr_predicted_pc),
+        .out(out_predicted_pc)
+    );
+
     perf_if inst_count();
     perf_if cycle_count();
 
@@ -323,8 +337,9 @@ module execute_stage(
             default: do_jump = 1'b0;
         endcase
     end
-    assign exec_ld_pc = is_jump && (do_jump ? (decode_pc != branch_target_pc) : !out_next_is_cont);
+    assign exec_ld_pc = is_jump && (do_jump ? (out_predicted_pc != branch_target_pc) : !out_next_is_cont);
     assign exec_br_pc = do_jump ? branch_target_pc : (out_pc_inc);
+    assign exec_br_origin = out_pc;
     // Operand Fwd
     assign exec_of_reg = out_rd;
     assign exec_of_val = alu_result;

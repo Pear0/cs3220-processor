@@ -18,11 +18,12 @@ module core(
     wire [31:0] mem_req_data;
     wire mem_req_valid;
 
-    wire [31:0] fetch_pc, fetch_inst;
+    wire [31:0] fetch_pc, fetch_inst, fetch_predicted_pc;
     wire exec_ld_pc;
     wire [31:0] exec_br_pc;
+    wire [31:0] exec_br_origin;
 
-    wire [31:0] decode_pc;
+    wire [31:0] decode_pc, decode_predicted_pc;
     wire [5:0] decode_op;
     wire [7:0] decode_altop;
     wire [3:0] decode_rd, decode_rs, decode_rt;
@@ -32,7 +33,7 @@ module core(
     wire [3:0] fwd_exec_addr, fwd_mem_addr, fwd_a_addr, fwd_b_addr;
     wire [31:0] fwd_exec_val, fwd_mem_val, fwd_a_val, fwd_b_val;
 
-    wire [31:0] rr_pc;
+    wire [31:0] rr_pc, rr_predicted_pc;
     wire [31:0] rr_pc_inc;
     wire [5:0] rr_op;
     wire [7:0] rr_altop;
@@ -65,10 +66,11 @@ module core(
         .i_reset,
         .fetch_pc,
         .fetch_inst,
+        .fetch_predicted_pc,
 
         .exec_ld_pc,
         .exec_br_pc,
-        .rr_pc,
+        .exec_br_origin,
         
         .decode_stall,
         .decode_flush,
@@ -85,6 +87,7 @@ module core(
         .i_reset,
         .fetch_pc,
         .fetch_inst,
+        .fetch_predicted_pc,
 
         .decode_stall,
         .decode_flush,
@@ -97,7 +100,8 @@ module core(
         .decode_rd,
         .decode_rs,
         .decode_rt,
-        .decode_imm32
+        .decode_imm32,
+        .decode_predicted_pc
     );
 
     wire [31:0] exec_rd_val, mem_rd_val, wr_data;
@@ -132,6 +136,7 @@ module core(
         .decode_rs,
         .decode_rt,
         .decode_imm32,
+        .decode_predicted_pc,
         .fetch_pc,
 
         .rr_pc,
@@ -145,6 +150,7 @@ module core(
         .rr_imm32,
         .rr_pc_inc,
         .rr_next_is_cont,
+        .rr_predicted_pc,
 
         .rr_stall,
         .rr_flush,
@@ -180,6 +186,7 @@ module core(
         .rr_imm32,
         .rr_pc_inc,
         .rr_next_is_cont,
+        .rr_predicted_pc,
 
         .decode_pc,
 
@@ -188,6 +195,7 @@ module core(
 
         .exec_br_pc,
         .exec_ld_pc,
+        .exec_br_origin,
 
         .exec_of_reg(fwd_exec_addr),
         .exec_of_val(fwd_exec_val),
