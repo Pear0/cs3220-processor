@@ -10,7 +10,7 @@ module compat_sub
         input [WIDTH-1:0] dataa,
         input [WIDTH-1:0] datab,
 
-        output [31:0] result
+        output [WIDTH-1:0] result
     );
 
 // synthesis read_comments_as_HDL on
@@ -96,7 +96,7 @@ module compat_sub
             /*  Do the actual fallback computation here  */
             /* * * * * * * * * * * * * * * * * * * * * * */
 
-            assign result = $signed($signed(dataa) - $signed(datab));
+            assign result = $signed($signed(dataa_pipe_end) - $signed(datab_pipe_end));
 
         end
     endgenerate

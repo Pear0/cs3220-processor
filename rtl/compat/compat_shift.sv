@@ -12,7 +12,7 @@ module compat_shift
         input [WIDTHDIST-1:0] distance,
         input direction, // 0 = left, 1 = right
 
-        output [WIDTH-1:0] result
+        output reg [WIDTH-1:0] result
     );
 
 // synthesis read_comments_as_HDL on
@@ -25,6 +25,7 @@ module compat_shift
 
     generate
         if (IMPL == "quartus") begin
+            /* verilator lint_off DECLFILENAME */
 
             if (PIPELINE > 0) begin
                 lpm_clshift#(
@@ -55,6 +56,7 @@ module compat_shift
                 );
             end
 
+            /* verilator lint_on DECLFILENAME */
         end
         else begin
 

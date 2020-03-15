@@ -10,7 +10,7 @@ module compat_add
         input [WIDTH-1:0] dataa,
         input [WIDTH-1:0] datab,
 
-        output [31:0] result
+        output [WIDTH-1:0] result
     );
 
 // synthesis read_comments_as_HDL on
@@ -23,6 +23,7 @@ module compat_add
 
     generate
         if (IMPL == "quartus") begin
+            /* verilator lint_off DECLFILENAME */
 
             if (PIPELINE > 0) begin
                 lpm_add_sub#(
@@ -51,6 +52,7 @@ module compat_add
                 );
             end
 
+            /* verilator lint_on DECLFILENAME */
         end
         else begin
 
@@ -96,7 +98,7 @@ module compat_add
             /*  Do the actual fallback computation here  */
             /* * * * * * * * * * * * * * * * * * * * * * */
 
-            assign result = $signed($signed(dataa) + $signed(datab));
+            assign result = $signed($signed(dataa_pipe_end) + $signed(datab_pipe_end));
 
         end
     endgenerate

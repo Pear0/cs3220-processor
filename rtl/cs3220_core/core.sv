@@ -37,6 +37,7 @@ module core(
     wire [5:0] rr_op;
     wire [7:0] rr_altop;
     wire [3:0] rr_rd;
+    wire [3:0] rr_rs, rr_rt;
     wire [31:0] rr_rs_val, rr_rt_val;
     wire [31:0] rr_imm32;
     wire rr_stall, rr_flush;
@@ -137,6 +138,8 @@ module core(
         .rr_op,
         .rr_altop,
         .rr_rd,
+        .rr_rs,
+        .rr_rt,
         .rr_rs_val,
         .rr_rt_val,
         .rr_imm32,
@@ -170,6 +173,8 @@ module core(
         .rr_op,
         .rr_altop,
         .rr_rd,
+        .rr_rs,
+        .rr_rt,
         .rr_rs_val,
         .rr_rt_val,
         .rr_imm32,

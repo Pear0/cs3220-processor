@@ -17,6 +17,7 @@ module register_stage(
     output reg [5:0] rr_op,
     output reg [7:0] rr_altop,
     output reg [3:0] rr_rd,
+    output reg [3:0] rr_rs, rr_rt,
     output reg [31:0] rr_rs_val, rr_rt_val,
     output reg [31:0] rr_imm32,
     output reg [0:0] rr_next_is_cont,
@@ -36,16 +37,22 @@ module register_stage(
     assign dprf_ra = decode_rs;
     assign dprf_rb = decode_rt;
 
-    assign rr_stall = exec_stall;
+    wire conflict = rr_rd != 0 && rr_op != `OPCODE_LW && (rr_rd == decode_rs || rr_rd == decode_rt);
+
+    assign rr_stall = exec_stall || conflict;
     assign rr_flush = exec_flush;
 
+    wire do_flush = exec_flush || conflict;
+
     always @(posedge i_clk) begin
-        if (i_reset || exec_flush) begin
+        if (i_reset || do_flush) begin
             rr_pc <= 0;
             rr_op <= 0;
             rr_altop <= 0;
             rr_rd <= 0;
             rr_imm32 <= 0;
+            rr_rs <= 0;
+            rr_rt <= 0;
             rr_rs_val <= 0;
             rr_rt_val <= 0;
             rr_pc_inc <= 0;
@@ -59,6 +66,8 @@ module register_stage(
             rr_rd <= decode_rd;
             rr_imm32 <= decode_imm32;
 
+            rr_rs <= decode_rs;
+            rr_rt <= decode_rt;
             if (decode_rs == fwd_a_addr)
                 rr_rs_val <= fwd_a_val;
             else if (decode_rs == fwd_b_addr)

@@ -23,6 +23,7 @@ module compat_compare
 
     generate
         if (IMPL == "quartus") begin
+            /* verilator lint_off DECLFILENAME */
 
             if (PIPELINE > 0) begin
                 lpm_compare#(
@@ -51,6 +52,7 @@ module compat_compare
                 );
             end
 
+            /* verilator lint_on DECLFILENAME */
         end
         else begin
 
