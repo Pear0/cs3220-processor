@@ -34,10 +34,29 @@ module execute_stage(
 
     reg inferred_halt;
 
-    wire is_eq = rr_rs_val == rr_rt_val;
-    wire is_lt = $signed(rr_rs_val) < $signed(rr_rt_val);
-    wire is_le = is_eq || is_lt;
-    wire is_ne = !is_eq;
+    wire is_eq, is_lt, is_le, is_ne, is_gt, is_gte;
+
+    compat_compare #(
+        .WIDTH(32),
+        .PIPELINE(0)
+    ) cmp (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_rs_val),
+        .datab(rr_rt_val),
+        .aeb(is_eq),
+        .alb(is_lt),
+        .aleb(is_le),
+        .aneb(is_ne),
+        .agb(is_gt),
+        .ageb(is_gte)
+    );
+
+//    wire is_eq = rr_rs_val == rr_rt_val;
+//    wire is_lt = $signed(rr_rs_val) < $signed(rr_rt_val);
+//    wire is_le = is_eq || is_lt;
+//    wire is_ne = !is_eq;
 
     reg do_jump;
 
@@ -55,8 +74,19 @@ module execute_stage(
     wire shift_direction;
     assign shift_direction = (rr_altop == `EXTOP_RSHF);
     wire [31:0] shift_result;
+    wire [31:0] add_result;
+    wire [31:0] add_imm_result;
+    wire [31:0] sub_result;
 
-`ifndef VERILATOR
+    wire [31:0] and_result;
+    wire [31:0] or_result;
+    wire [31:0] xor_result;
+
+    wire [31:0] and_imm_result;
+    wire [31:0] or_imm_result;
+    wire [31:0] xor_imm_result;
+
+//`ifndef VERILATOR
     compat_shift#(
         .WIDTH(32),
         .WIDTHDIST(5),
@@ -71,13 +101,78 @@ module execute_stage(
         .direction(shift_direction),
         .result(shift_result)
     );
-`else
-    assign shift_result = shift_direction ? (
-        rr_rs_val << rr_rt_val[4:0]
-    ) : (
-        $signed($signed(rr_rs_val) >>> rr_rt_val[4:0])
+//`else
+//    assign shift_result = shift_direction ? (
+//        rr_rs_val << rr_rt_val[4:0]
+//    ) : (
+//        $signed($signed(rr_rs_val) >>> rr_rt_val[4:0])
+//    );
+//`endif
+
+    compat_add #(
+        .WIDTH(32),
+        .PIPELINE(0)
+    ) add (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_rs_val),
+        .datab(rr_rt_val),
+        .result(add_result)
     );
-`endif
+
+    compat_add #(
+        .WIDTH(32),
+        .PIPELINE(0)
+    ) add_imm (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_rs_val),
+        .datab(rr_imm32),
+        .result(add_imm_result)
+    );
+
+    compat_sub #(
+        .WIDTH(32),
+        .PIPELINE(0)
+    ) sub (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_rs_val),
+        .datab(rr_rt_val),
+        .result(sub_result)
+    );
+
+    compat_bitwise #(
+        .WIDTH(32),
+        .PIPELINE(0)
+    ) bitwise (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_rs_val),
+        .datab(rr_rt_val),
+        .result_and(and_result),
+        .result_or(or_result),
+        .result_xor(xor_result)
+    );
+
+    compat_bitwise #(
+        .WIDTH(32),
+        .PIPELINE(0)
+    ) bitwise_imm (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_rs_val),
+        .datab(rr_imm32),
+        .result_and(and_imm_result),
+        .result_or(or_imm_result),
+        .result_xor(xor_imm_result)
+    );
+
 
     perf_if inst_count();
     perf_if cycle_count();
@@ -116,26 +211,26 @@ module execute_stage(
                 `EXTOP_LT: alu_result = {31'h0, is_lt};
                 `EXTOP_LE: alu_result = {31'h0, is_le};
                 `EXTOP_NE: alu_result = {31'h0, is_ne};
-                `EXTOP_ADD: alu_result = rr_rs_val+rr_rt_val;
-                `EXTOP_AND: alu_result = rr_rs_val & rr_rt_val;
-                `EXTOP_OR: alu_result = rr_rs_val | rr_rt_val;
-                `EXTOP_XOR: alu_result = rr_rs_val ^ rr_rt_val;
-                `EXTOP_SUB: alu_result = rr_rs_val-rr_rt_val;
-                `EXTOP_NAND: alu_result = ~(rr_rs_val & rr_rt_val);
-                `EXTOP_NOR: alu_result = ~(rr_rs_val | rr_rt_val);
-                `EXTOP_NXOR: alu_result = ~(rr_rs_val ^ rr_rt_val);
-                `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
-                `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
-//                `EXTOP_RSHF: alu_result = shift_result;
-//                `EXTOP_LSHF: alu_result = shift_result;
+                `EXTOP_ADD: alu_result = add_result;
+                `EXTOP_AND: alu_result = and_result;
+                `EXTOP_OR: alu_result = or_result;
+                `EXTOP_XOR: alu_result = xor_result;
+                `EXTOP_SUB: alu_result = sub_result;
+                `EXTOP_NAND: alu_result = ~and_result;
+                `EXTOP_NOR: alu_result = ~or_result;
+                `EXTOP_NXOR: alu_result = ~xor_result;
+//                `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
+//                `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
+                `EXTOP_RSHF: alu_result = shift_result;
+                `EXTOP_LSHF: alu_result = shift_result;
                 default: alu_result = 32'h0;
             endcase
         end
         else case (rr_op)
-            `OPCODE_ADDI: alu_result = rr_rs_val+rr_imm32;
-            `OPCODE_ANDI: alu_result = rr_rs_val & rr_imm32;
-            `OPCODE_ORI: alu_result = rr_rs_val | rr_imm32;
-            `OPCODE_XORI: alu_result = rr_rs_val ^ rr_imm32;
+            `OPCODE_ADDI: alu_result = add_imm_result;
+            `OPCODE_ANDI: alu_result = and_imm_result;
+            `OPCODE_ORI: alu_result = or_imm_result;
+            `OPCODE_XORI: alu_result = xor_imm_result;
             `OPCODE_JAL: alu_result = rr_pc+4;
             default: alu_result = 32'h0;
         endcase
@@ -169,7 +264,7 @@ module execute_stage(
     // Branch Target PC
     always @(*) begin
         case (rr_op)
-        `OPCODE_JAL: branch_target_pc = rr_imm32+rr_rs_val;
+        `OPCODE_JAL: branch_target_pc = add_imm_result;
             default: branch_target_pc = rr_imm32;
         endcase
     end

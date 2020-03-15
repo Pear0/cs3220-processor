@@ -38,7 +38,8 @@ module compat_shift
                     .clken(clken),
                     .data(data),
                     .direction(direction),
-                    .distance(distance)
+                    .distance(distance),
+                    .result(result)
                 );
             end else begin
                 lpm_clshift#(
@@ -49,7 +50,8 @@ module compat_shift
                 ) quartus_shift0(
                     .data(data),
                     .direction(direction),
-                    .distance(distance)
+                    .distance(distance),
+                    .result(result)
                 );
             end
 
