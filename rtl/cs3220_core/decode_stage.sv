@@ -9,7 +9,7 @@ module decode_stage
     rr_stall, rr_flush,
     decode_stall, decode_flush,
 
-    decode_pc, decode_op, decode_altop,
+    decode_pc, decode_op, decode_altop, decode_altaluop,
     decode_rd, decode_rs, decode_rt,
     decode_imm32,
     decode_predicted_pc
@@ -38,15 +38,36 @@ wire [15:0] i_imm16 = fetch_inst[23:8];
 output reg [31:0] decode_pc;
 output reg [5:0] decode_op;
 output reg [7:0] decode_altop;
+output reg [3:0] decode_altaluop;
 output reg [3:0] decode_rd, decode_rs, decode_rt;
 output reg [31:0] decode_imm32;
 output reg [31:0] decode_predicted_pc;
+
+reg [3:0] compute_aluop;
+always @(*) case (i_altop)
+    `EXTOP_EQ: compute_aluop = `ALUOP_EQ;
+    `EXTOP_LT: compute_aluop = `ALUOP_LT;
+    `EXTOP_LE: compute_aluop = `ALUOP_LE;
+    `EXTOP_NE: compute_aluop = `ALUOP_NE;
+    `EXTOP_ADD: compute_aluop = `ALUOP_ADD;
+    `EXTOP_AND: compute_aluop = `ALUOP_AND;
+    `EXTOP_OR: compute_aluop = `ALUOP_OR;
+    `EXTOP_XOR: compute_aluop = `ALUOP_XOR;
+    `EXTOP_SUB: compute_aluop = `ALUOP_SUB;
+    `EXTOP_NAND: compute_aluop = `ALUOP_NAND;
+    `EXTOP_NOR: compute_aluop = `ALUOP_NOR;
+    `EXTOP_NXOR: compute_aluop = `ALUOP_NXOR;
+    `EXTOP_RSHF: compute_aluop = `ALUOP_RSHF;
+    `EXTOP_LSHF: compute_aluop = `ALUOP_LSHF;
+    default: compute_aluop = 0;
+endcase
 
 always @(posedge i_clk) begin
     if (i_reset || rr_flush) begin
         decode_pc <= 0;
         decode_op <= 0;
         decode_altop <= 0;
+        decode_altaluop <= 0;
         decode_rd <= 0;
         decode_rs <= 0;
         decode_rt <= 0;
@@ -57,6 +78,7 @@ always @(posedge i_clk) begin
         decode_pc <= fetch_pc;
         decode_op <= i_op;
         decode_altop <= i_altop;
+        decode_altaluop <= compute_aluop;
         decode_predicted_pc <= fetch_predicted_pc;
         if (i_op == 6'h0) begin
             decode_rd <= i_rd;

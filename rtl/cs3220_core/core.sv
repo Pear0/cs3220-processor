@@ -26,6 +26,7 @@ module core(
     wire [31:0] decode_pc, decode_predicted_pc;
     wire [5:0] decode_op;
     wire [7:0] decode_altop;
+    wire [3:0] decode_altaluop;
     wire [3:0] decode_rd, decode_rs, decode_rt;
     wire [31:0] decode_imm32;
     wire decode_stall, decode_flush;
@@ -38,6 +39,7 @@ module core(
     wire [31:0] rr_pc_inc;
     wire [5:0] rr_op;
     wire [7:0] rr_altop;
+    wire [3:0] rr_altaluop;
     wire [3:0] rr_rd;
     wire [3:0] rr_rs, rr_rt;
     wire [31:0] rr_rs_val, rr_rt_val;
@@ -98,6 +100,7 @@ module core(
         .decode_pc,
         .decode_op,
         .decode_altop,
+        .decode_altaluop,
         .decode_rd,
         .decode_rs,
         .decode_rt,
@@ -133,6 +136,7 @@ module core(
         .decode_pc,
         .decode_op,
         .decode_altop,
+        .decode_altaluop,
         .decode_rd,
         .decode_rs,
         .decode_rt,
@@ -142,6 +146,7 @@ module core(
         .rr_pc,
         .rr_op,
         .rr_altop,
+        .rr_altaluop,
         .rr_rd,
         .rr_rs,
         .rr_rt,
@@ -178,6 +183,7 @@ module core(
         .rr_pc,
         .rr_op,
         .rr_altop,
+        .rr_altaluop,
         .rr_rd,
         .rr_rs,
         .rr_rt,

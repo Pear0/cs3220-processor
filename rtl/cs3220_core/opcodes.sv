@@ -46,6 +46,30 @@
 `define EXTSMOP_NOR  4'b1101
 `define EXTSMOP_NXOR 4'b1110
 
+
+
+`define ALUOP_ADD  4'b0000
+`define ALUOP_SUB  4'b0001
+`define ALUOP_LT   4'b0010
+`define ALUOP_LE   4'b0011
+
+`define ALUOP_EQ   4'b0100
+`define ALUOP_AND  4'b0101
+`define ALUOP_OR   4'b0110
+`define ALUOP_XOR  4'b0111
+
+`define ALUOP_NE   4'b1000
+`define ALUOP_NAND 4'b1001
+`define ALUOP_NOR  4'b1010
+`define ALUOP_NXOR 4'b1011
+
+`define ALUOP_RSHF 4'b1100
+`define ALUOP_LSHF 4'b1101
+
+
+
+
+
 `define MEMINIT_FILE "../test_code/fmedian2.mif"
 
 `endif

@@ -7,6 +7,7 @@ module register_stage(
     input wire [31:0] decode_pc,
     input wire [5:0] decode_op,
     input wire [7:0] decode_altop,
+    input wire [3:0] decode_altaluop,
     input wire [3:0] decode_rd, decode_rs, decode_rt,
     input wire [31:0] decode_imm32,
     input wire [31:0] decode_predicted_pc,
@@ -16,6 +17,7 @@ module register_stage(
 	output reg [31:0] rr_pc_inc,
     output reg [5:0] rr_op,
     output reg [7:0] rr_altop,
+    output reg [3:0] rr_altaluop,
     output reg [3:0] rr_rd,
     output reg [3:0] rr_rs, rr_rt,
     output reg [31:0] rr_rs_val, rr_rt_val,
@@ -50,6 +52,7 @@ module register_stage(
             rr_pc <= 0;
             rr_op <= 0;
             rr_altop <= 0;
+            rr_altaluop <= 0;
             rr_rd <= 0;
             rr_imm32 <= 0;
             rr_rs <= 0;
@@ -65,6 +68,7 @@ module register_stage(
             rr_pc <= decode_pc;
             rr_op <= decode_op;
             rr_altop <= decode_altop;
+            rr_altaluop <= decode_altaluop;
             rr_rd <= decode_rd;
             rr_imm32 <= decode_imm32;
             rr_predicted_pc <= decode_predicted_pc;

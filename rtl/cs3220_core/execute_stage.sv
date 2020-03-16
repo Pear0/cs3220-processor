@@ -7,6 +7,7 @@ module execute_stage(
     input wire [31:0] rr_pc,
     input wire [5:0] rr_op,
     input wire [7:0] rr_altop,
+    input wire [3:0] rr_altaluop,
     input wire [3:0] rr_rd,
     input wire [3:0] rr_rs, rr_rt,
     input wire [31:0] rr_rs_val, rr_rt_val,
@@ -279,6 +280,18 @@ module execute_stage(
         .aeb(out_op_zero)
     );
 
+    wire [3:0] out_altaluop;
+    compat_delay #(
+        .WIDTH(4),
+        .PIPELINE(internal_pipeline)
+    ) altaluop_delay (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .in(rr_altaluop),
+        .out(out_altaluop)
+    );
+
     perf_if inst_count();
     perf_if cycle_count();
 
@@ -312,26 +325,21 @@ module execute_stage(
             alu_result = 0;
         else if (out_op_zero) begin
 
-            if (~out_altop[5]) begin
-                case (out_altop[1:0])
-                    `EXTSMOP_EQ: alu_result = {31'h0, is_eq};
-                    `EXTSMOP_LT: alu_result = {31'h0, is_lt};
-                    `EXTSMOP_LE: alu_result = {31'h0, is_le};
-                    `EXTSMOP_NE: alu_result = {31'h0, is_ne};
-                    default: alu_result = 32'h0;
-                endcase
-            end
-            else if (out_altop[4])
-                alu_result = shift_result;
-            else case (out_altop[3:0])
-                `EXTSMOP_ADD: alu_result = add_result;
-                `EXTSMOP_AND: alu_result = and_result;
-                `EXTSMOP_OR: alu_result = or_result;
-                `EXTSMOP_XOR: alu_result = xor_result;
-                `EXTSMOP_SUB: alu_result = sub_result;
-                `EXTSMOP_NAND: alu_result = ~and_result;
-                `EXTSMOP_NOR: alu_result = ~or_result;
-                `EXTSMOP_NXOR: alu_result = ~xor_result;
+            case (out_altaluop)
+                `ALUOP_EQ: alu_result = {31'h0, is_eq};
+                `ALUOP_LT: alu_result = {31'h0, is_lt};
+                `ALUOP_LE: alu_result = {31'h0, is_le};
+                `ALUOP_NE: alu_result = {31'h0, is_ne};
+                `ALUOP_ADD: alu_result = add_result;
+                `ALUOP_AND: alu_result = and_result;
+                `ALUOP_OR: alu_result = or_result;
+                `ALUOP_XOR: alu_result = xor_result;
+                `ALUOP_SUB: alu_result = sub_result;
+                `ALUOP_NAND: alu_result = ~and_result;
+                `ALUOP_NOR: alu_result = ~or_result;
+                `ALUOP_NXOR: alu_result = ~xor_result;
+                `ALUOP_LSHF: alu_result = shift_result;
+                `ALUOP_RSHF: alu_result = shift_result;
                 default: alu_result = 32'h0;
             endcase
         end
