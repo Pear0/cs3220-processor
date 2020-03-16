@@ -24,6 +24,7 @@ module memory_stage(
     input wire [31:0] rr_pc,
 
     // Forwarding
+    output reg mem_of_valid,
     output reg [3:0] mem_of_reg,
     output reg [31:0] mem_of_val,
 
@@ -42,6 +43,7 @@ initial begin
 end
 
 initial begin
+    mem_of_valid = 0;
     mem_of_reg = 0;
     mem_of_val = 0;
 end
@@ -117,7 +119,7 @@ localparam
     WRITE_WAIT_ACK = 6,
     LAST_STATE = 7;
 
-reg [3:0] current_state;
+reg [2:0] current_state;
 initial current_state = IDLE;
 
 // wishbone combinational control signals
@@ -151,14 +153,17 @@ reg [31:0] temp_read;
 always @(*)
     case (current_state)
         READ_STALLED_OUT: begin
+            mem_of_valid = !is_write;
             mem_of_reg = !is_write ? rr_rd: 0;
             mem_of_val = !is_write ? temp_read : 0;
         end
         READ_WAIT_ACK: begin
+            mem_of_valid = !writeback_stall;
             mem_of_reg = !writeback_stall ? rr_rd: 0;
             mem_of_val = !writeback_stall ? (wb_err ? 32'h13371337 : wb_miso) : 0;
         end
         default: begin
+            mem_of_valid = 0;
             mem_of_reg = 0;
             mem_of_val = 0;
         end

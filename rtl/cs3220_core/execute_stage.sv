@@ -241,7 +241,7 @@ module execute_stage(
         .out(out_next_is_cont)
     );
 
-     wire [31:0] out_predicted_pc;
+    wire [31:0] out_predicted_pc;
     compat_delay #(
         .WIDTH(32),
         .PIPELINE(internal_pipeline)
@@ -251,6 +251,32 @@ module execute_stage(
         .clken(1),
         .in(rr_predicted_pc),
         .out(out_predicted_pc)
+    );
+
+    wire out_op_jal;
+    compat_const_eq #(
+        .WIDTH(32),
+        .PIPELINE(internal_pipeline)
+    ) out_op_jal_delay (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_op),
+        .datab(`OPCODE_JAL),
+        .aeb(out_op_jal)
+    );
+
+    wire out_op_zero;
+    compat_const_eq #(
+        .WIDTH(32),
+        .PIPELINE(internal_pipeline)
+    ) out_op_zero_delay (
+        .clock(i_clk),
+        .aclr(0),
+        .clken(1),
+        .dataa(rr_op),
+        .datab(0),
+        .aeb(out_op_zero)
     );
 
     perf_if inst_count();
@@ -284,24 +310,28 @@ module execute_stage(
     always @(*) begin
         if (out_rd == 0)
             alu_result = 0;
-        else if (out_op == 6'h0) begin
-            case (out_altop)
-                `EXTOP_EQ: alu_result = {31'h0, is_eq};
-                `EXTOP_LT: alu_result = {31'h0, is_lt};
-                `EXTOP_LE: alu_result = {31'h0, is_le};
-                `EXTOP_NE: alu_result = {31'h0, is_ne};
-                `EXTOP_ADD: alu_result = add_result;
-                `EXTOP_AND: alu_result = and_result;
-                `EXTOP_OR: alu_result = or_result;
-                `EXTOP_XOR: alu_result = xor_result;
-                `EXTOP_SUB: alu_result = sub_result;
-                `EXTOP_NAND: alu_result = ~and_result;
-                `EXTOP_NOR: alu_result = ~or_result;
-                `EXTOP_NXOR: alu_result = ~xor_result;
-//                `EXTOP_RSHF: alu_result = $signed($signed(rr_rs_val) >>> rr_rt_val[4:0]);
-//                `EXTOP_LSHF: alu_result = rr_rs_val << rr_rt_val[4:0];
-                `EXTOP_RSHF: alu_result = shift_result;
-                `EXTOP_LSHF: alu_result = shift_result;
+        else if (out_op_zero) begin
+
+            if (~out_altop[5]) begin
+                case (out_altop[1:0])
+                    `EXTSMOP_EQ: alu_result = {31'h0, is_eq};
+                    `EXTSMOP_LT: alu_result = {31'h0, is_lt};
+                    `EXTSMOP_LE: alu_result = {31'h0, is_le};
+                    `EXTSMOP_NE: alu_result = {31'h0, is_ne};
+                    default: alu_result = 32'h0;
+                endcase
+            end
+            else if (out_altop[4])
+                alu_result = shift_result;
+            else case (out_altop[3:0])
+                `EXTSMOP_ADD: alu_result = add_result;
+                `EXTSMOP_AND: alu_result = and_result;
+                `EXTSMOP_OR: alu_result = or_result;
+                `EXTSMOP_XOR: alu_result = xor_result;
+                `EXTSMOP_SUB: alu_result = sub_result;
+                `EXTSMOP_NAND: alu_result = ~and_result;
+                `EXTSMOP_NOR: alu_result = ~or_result;
+                `EXTSMOP_NXOR: alu_result = ~xor_result;
                 default: alu_result = 32'h0;
             endcase
         end
@@ -319,12 +349,13 @@ module execute_stage(
 
     reg [31:0] branch_target_pc;
     // Branch Target PC
-    always @(*) begin
-        case (out_op)
-        `OPCODE_JAL: branch_target_pc = add_imm_result;
-            default: branch_target_pc = out_imm32;
-        endcase
-    end
+//    always @(*) begin
+//        case (out_op)
+//        `OPCODE_JAL: branch_target_pc = add_imm_result;
+//            default: branch_target_pc = out_imm32;
+//        endcase
+//    end
+    assign branch_target_pc = out_op_jal ? add_imm_result : out_imm32;
 
     always @(*) begin
         case (out_op)

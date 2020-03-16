@@ -21,16 +21,30 @@
 `define EXTOP_LE 8'b0000_1010
 `define EXTOP_NE 8'b0000_1011
 
-`define EXTOP_ADD 8'b0010_0000
-`define EXTOP_AND 8'b0010_0100
-`define EXTOP_OR 8'b0010_0101
-`define EXTOP_XOR 8'b0010_0110
-`define EXTOP_SUB 8'b0010_1000
+`define EXTSMOP_EQ 2'b00
+`define EXTSMOP_LT 2'b01
+`define EXTSMOP_LE 2'b10
+`define EXTSMOP_NE 2'b11
+
+`define EXTOP_ADD  8'b0010_0000
+`define EXTOP_AND  8'b0010_0100
+`define EXTOP_OR   8'b0010_0101
+`define EXTOP_XOR  8'b0010_0110
+`define EXTOP_SUB  8'b0010_1000
 `define EXTOP_NAND 8'b0010_1100
-`define EXTOP_NOR 8'b0010_1101
+`define EXTOP_NOR  8'b0010_1101
 `define EXTOP_NXOR 8'b0010_1110
 `define EXTOP_RSHF 8'b0011_0000
 `define EXTOP_LSHF 8'b0011_0001
+
+`define EXTSMOP_ADD  4'b0000
+`define EXTSMOP_AND  4'b0100
+`define EXTSMOP_OR   4'b0101
+`define EXTSMOP_XOR  4'b0110
+`define EXTSMOP_SUB  4'b1000
+`define EXTSMOP_NAND 4'b1100
+`define EXTSMOP_NOR  4'b1101
+`define EXTSMOP_NXOR 4'b1110
 
 `define MEMINIT_FILE "../test_code/fmedian2.mif"
 

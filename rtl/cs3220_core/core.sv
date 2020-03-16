@@ -32,6 +32,7 @@ module core(
 
     wire [3:0] fwd_exec_addr, fwd_mem_addr, fwd_a_addr, fwd_b_addr;
     wire [31:0] fwd_exec_val, fwd_mem_val, fwd_a_val, fwd_b_val;
+    wire fwd_mem_valid;
 
     wire [31:0] rr_pc, rr_predicted_pc;
     wire [31:0] rr_pc_inc;
@@ -167,8 +168,8 @@ module core(
         .fwd_b_val
     );
 
-    assign fwd_a_addr = fwd_mem_addr != 0 ? fwd_mem_addr:fwd_exec_addr;
-    assign fwd_a_val = fwd_mem_addr != 0 ? fwd_mem_val:fwd_exec_val;
+    assign fwd_a_addr = fwd_mem_valid ? fwd_mem_addr:fwd_exec_addr;
+    assign fwd_a_val = fwd_mem_valid ? fwd_mem_val:fwd_exec_val;
 
     execute_stage exec(
         .i_clk,
@@ -232,6 +233,7 @@ module core(
 
         .mem_of_reg(fwd_mem_addr),
         .mem_of_val(fwd_mem_val),
+        .mem_of_valid(fwd_mem_valid),
 
         .mem_rd,
         .mem_rd_val
