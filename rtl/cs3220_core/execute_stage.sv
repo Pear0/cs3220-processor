@@ -20,7 +20,7 @@ module execute_stage(
 
     output reg [31:0] exec_br_pc,
     output reg [31:0] exec_br_origin,
-    output wire exec_ld_pc,
+    output reg exec_ld_pc,
 
     output wire [3:0] exec_of_reg,
     output wire [31:0] exec_of_val,
@@ -62,8 +62,9 @@ module execute_stage(
     assign exec_stall = inferred_halt || pipeline_stall;
     assign exec_flush = exec_ld_pc;
 
+    // 1 == RSHF
     wire shift_direction;
-    assign shift_direction = (rr_altop == `EXTOP_RSHF);
+    assign shift_direction = ~rr_altop[0];
     wire [31:0] shift_result;
     wire [31:0] add_result;
     wire [31:0] add_imm_result;
@@ -335,9 +336,9 @@ module execute_stage(
             default: do_jump = 1'b0;
         endcase
     end
-    assign exec_ld_pc = is_jump && (do_jump ? (out_predicted_pc != branch_target_pc) : !out_next_is_cont);
-    assign exec_br_pc = do_jump ? branch_target_pc : (out_pc_inc);
-    assign exec_br_origin = out_pc;
+//    assign exec_ld_pc = is_jump && (do_jump ? (out_predicted_pc != branch_target_pc) : !out_next_is_cont);
+//    assign exec_br_pc = do_jump ? branch_target_pc : (out_pc_inc);
+//    assign exec_br_origin = out_pc;
     // Operand Fwd
     assign exec_of_reg = out_rd;
     assign exec_of_val = alu_result;
@@ -349,25 +350,47 @@ module execute_stage(
     wire should_infer_halt;
     assign should_infer_halt = ih_exec_ld_pc && (ih_pc == ih_br_pc);
 
+    reg [5:0] flush_count;
+
     always @(posedge i_clk) begin
-        if (i_reset) begin
+        if (i_reset || flush_count[0]) begin
             exec_rd <= 0;
             exec_rd_val <= 0;
+            exec_ld_pc <= 0;
+            exec_br_pc <= 0;
+            exec_br_origin <= 0;
             ih_exec_ld_pc <= 0;
             ih_pc <= 0;
             ih_br_pc <= 0;
-            inferred_halt <= 0;
+            if (i_reset) begin
+                inferred_halt <= 0;
+                flush_count <= 0;
+            end
+
+            if (flush_count[0])
+                flush_count <= (flush_count >> 1);
         end
         else if (!inferred_halt) begin
             // infer a halt if we jump into a forever single instruction loop
 
+            exec_ld_pc <= is_jump && (do_jump ? (out_predicted_pc != branch_target_pc) : !out_next_is_cont);
+            exec_br_pc <= do_jump ? branch_target_pc : (out_pc_inc);
+            exec_br_origin <= out_pc;
+
+            if (is_jump && (do_jump ? (out_predicted_pc != branch_target_pc) : !out_next_is_cont))
+                flush_count <= 5'b11;
+            else
+                flush_count <= (flush_count >> 1);
+
+            // TODO mve this to same cycle
             ih_exec_ld_pc <= exec_ld_pc;
             ih_pc <= out_pc;
             ih_br_pc <= exec_br_pc;
             // next cycle
             inferred_halt <= should_infer_halt;
 
-            if (out_op != `OPCODE_LW && out_op != `OPCODE_LW)
+//            if (out_op != `OPCODE_LW && out_op != `OPCODE_LW)
+            if (~out_op[4])
                 exec_rd <= out_rd;
             else
                 exec_rd <= 0;

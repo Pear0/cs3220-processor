@@ -76,13 +76,15 @@ end
 // are sent.
 
 wire start_tx;
-assign start_tx = (
-    rr_op == `OPCODE_LW ||
-    rr_op == `OPCODE_SW
-    );
+//assign start_tx = (
+//    rr_op == `OPCODE_LW ||
+//    rr_op == `OPCODE_SW
+//    );
+assign start_tx = rr_op[4];
 
 wire is_write;
-assign is_write = (rr_op == `OPCODE_SW);
+//assign is_write = (rr_op == `OPCODE_SW);
+assign is_write = start_tx && rr_op[3];
 
 reg [31:0] mem_addr;
 always @(*)

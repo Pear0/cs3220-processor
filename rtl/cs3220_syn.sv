@@ -92,12 +92,19 @@ module cs3220_syn
 // 11 1111 1111 1111 1111 1100 0010 0100 xx - SW     (4 Bytes) (0xFFFF_F090 -> 0xFFFF_F093)
 //(31)
 
+`ifndef PROPER_WB_MAP
+    assign mem_sel      = ~wb_addr[14]; // mem selected
+    assign sseg_sel     = (wb_addr[14] && ~wb_addr[5] && ~wb_addr[3] && ~wb_addr[2]); // SSEG
+    assign switch_sel   = (wb_addr[14] && wb_addr[3]) // LEDS
+                        ||(wb_addr[14] && wb_addr[5] && wb_addr[2]); // SW
+    assign key_sel      = wb_addr[14] && wb_addr[5]; // KEY
+`else
     assign mem_sel      = (wb_addr[29:14] == 16'h0); // mem selected
     assign sseg_sel     = (wb_addr[29:0 ] == 30'b11_1111_1111_1111_1111_1100_0000_0000); // SSEG
     assign switch_sel   = (wb_addr[29:0 ] == 30'b11_1111_1111_1111_1111_1100_0000_1000) // LEDS
                         ||(wb_addr[29:0 ] == 30'b11_1111_1111_1111_1111_1100_0010_0100); // SW
     assign key_sel      = (wb_addr[29:0 ] == 30'b11_1111_1111_1111_1111_1100_0010_0000); // KEY
-
+`endif
 
 // SEL
     wire none_sel;
