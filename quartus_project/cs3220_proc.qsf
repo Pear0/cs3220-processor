@@ -207,9 +207,11 @@ set_location_assignment PIN_M6 -to i_keys[3]
 set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING OFF
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA OFF
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
 set_global_assignment -name TIMING_ANALYZER_DO_REPORT_TIMING ON
 set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 10.0
+set_global_assignment -name SAVE_DISK_SPACE OFF
+set_global_assignment -name SEED 1
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/compat/compat_const_eq.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/compat/compat_delay.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/compat/compat_bitwise.sv
@@ -226,6 +228,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/perf/perf_mux2.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/compat/compat_shift.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wb_iodevices/wb_keys.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/memory_stage.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/memory_stage2.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wbpriarbiter.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_syn.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/wb_iodevices/wb_switch_led.sv
@@ -245,6 +248,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../rtl/cs3220_core/core.sv
 set_global_assignment -name SDC_FILE cs3220_sdc.sdc
 set_global_assignment -name QIP_FILE ../rtl/syn_altera/pll/main_pll.qip
 set_global_assignment -name SIP_FILE ../rtl/syn_altera/pll/main_pll.sip
-set_global_assignment -name SAVE_DISK_SPACE OFF
-set_global_assignment -name SEED 420
+set_global_assignment -name FITTER_AUTO_EFFORT_DESIRED_SLACK_MARGIN "0.15 ns"
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

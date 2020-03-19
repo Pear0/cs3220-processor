@@ -152,15 +152,15 @@ module cs3220_syn
 
     wire mem_err;
 
-    m4k_mem dmem(
-        .i_clk, .i_reset,
-        .wb_cyc, .wb_stb(wb_stb && mem_sel), .wb_we,
-        .wb_addr,
-        .wb_idata(wb_mosi),
-        .wb_sel,
-        .wb_ack(mem_ack), .wb_stall(mem_stall), .wb_err(mem_err),
-        .wb_odata(mem_data)
-    );
+//    m4k_mem dmem(
+//        .i_clk, .i_reset,
+//        .wb_cyc, .wb_stb(wb_stb && mem_sel), .wb_we,
+//        .wb_addr,
+//        .wb_idata(wb_mosi),
+//        .wb_sel,
+//        .wb_ack(mem_ack), .wb_stall(mem_stall), .wb_err(mem_err),
+//        .wb_odata(mem_data)
+//    );
 
     `ifdef VERILATOR
     assign o_die = (wb_stb && sseg_sel && wb_we) && (wb_mosi != 1);

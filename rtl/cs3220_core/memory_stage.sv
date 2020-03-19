@@ -54,29 +54,6 @@ initial begin
     mem_rd_val = 0;
 end
 
-
-// Internal
-
-// Small inconsistencies between LW, SW, IN, and OUT make this a little
-// annoying. Here we generate a bunch of combinational logic so that the state
-// machine is simpler.
-//
-// Buffer Layout:
-//  LW: dr <- MEM[sr1+imm]
-//  SW: MEM[sr1+imm] <- sr2
-//  IN: dr <- IO[imm]
-// OUT: IO[imm] <- sr1
-//
-// However IO is mapped onto the memory bus so mem_addr will hold the mapped
-// address for IO. The correct write value will be resolved into wr_val.
-//
-// IO is mapped into the highest 16 bits of memory however the memory bus is
-// only 30 bits wide. To reconcile this, the top 2 bits of the IO imm are
-// ignored. 16 + 14 = 30 bits. mem_addr is 32 bits wide. The bottom two bits
-// select within a 32 bit word for instruction where this is supported. (none
-// right now). When sent on the wishbone bus, only the top 30 bits of mem_addr
-// are sent.
-
 wire start_tx;
 //assign start_tx = (
 //    rr_op == `OPCODE_LW ||

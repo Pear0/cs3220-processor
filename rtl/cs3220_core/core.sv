@@ -210,7 +210,7 @@ module core(
         .perf
     );
 
-    memory_stage mem_stage(
+    memory_stage2 mem_stage(
         .i_clk,
         .i_reset,
         .writeback_stall(0),

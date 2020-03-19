@@ -6,6 +6,8 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <array>
+#include <unordered_map>
 #include <random>
 #include "testbench.h"
 #include "Vcs3220_syn.h"
@@ -75,7 +77,7 @@ std::vector<uint32_t> read_expected(const std::string &file) {
   unsigned char temp[4];
   int read = 0;
 
-  for (std::string line; std::getline(infile, line); ) {
+  for (std::string line; std::getline(infile, line);) {
 
     int i = line.find(" = ", 0);
     i += 3;
@@ -84,7 +86,7 @@ std::vector<uint32_t> read_expected(const std::string &file) {
     s += "0x";
     s += line.substr(i, 8);
 
-    auto result = (uint32_t ) std::stoul(s, nullptr, 16);
+    auto result = (uint32_t) std::stoul(s, nullptr, 16);
 
     words.push_back(result);
   }
@@ -96,8 +98,10 @@ int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   auto *tb = new TESTBENCH<Vcs3220_syn>();
 
+
   auto &ram = tb->m_core->cs3220_syn__DOT__core__DOT__imem__DOT__memory;
-  auto &dram = tb->m_core->cs3220_syn__DOT__dmem__DOT__memory;
+//  auto &dram = tb->m_core->cs3220_syn__DOT__dmem__DOT__memory;
+  auto &dram_2 = tb->m_core->cs3220_syn__DOT__core__DOT__mem_stage__DOT__memory;
 //  auto &dram = tb->m_core
 #define LOAD
 #ifdef LOAD
@@ -112,9 +116,10 @@ int main(int argc, char **argv) {
   }
 
   load_memory(ram, words);
-  load_memory(dram, words);
+//  load_memory(dram, words);
+  load_memory(dram_2, words);
 
-  std::cout << std::hex << (uint32_t) ram[words.size()-1] << "\n" << "@0x" << words.size() - 1;
+  std::cout << std::hex << (uint32_t) ram[words.size() - 1] << "\n" << "@0x" << words.size() - 1 << "\n";
 
 #else
   ram[0] = 0x0d20FFFF;
@@ -123,7 +128,7 @@ int main(int argc, char **argv) {
   ram[3] = 0x08403000;
 #endif
 
-#define DO_TRACE 1
+#define DO_TRACE 0
 
 //  tb->m_core->tl45_comp__DOT__dprf__DOT__registers[4] = 0;
 //  tb->m_core->tl45_comp__DOT__dprf__DOT__registers[7] = 0x80000000;
@@ -137,7 +142,18 @@ int main(int argc, char **argv) {
   uint32_t last_seg = 0xFFFFEEEE;
   uint32_t last_led = 0xFFFFEEEE;
 
-  while (!tb->done() && (tb->m_tickcount < 500 * 500000)) {
+  uint32_t conflict_count = 0;
+  uint32_t mem_stall_count = 0;
+  uint32_t bus_stall = 0;
+  uint32_t c2_conflicts = 0;
+
+  std::array<uint32_t, 9> mem_stages{0, 0, 0, 0, 0, 0, 0, 0};
+
+  std::unordered_map<uint32_t, uint32_t> mem_addrs;
+
+  int last_rd[2] = {0, 0};
+
+  while (!tb->done() && (tb->m_tickcount < 100 * 500000)) {
     tb->tick();
 //    if (tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__is_br) {
 //      branch_cnt++;
@@ -152,27 +168,96 @@ int main(int argc, char **argv) {
 //#endif
 //    }
 
+//  if (tb->m_tickcount % 10000 == 0) {
+//
+//    printf("curr_pc: 0x%x\n", tb->m_core->cs3220_syn__DOT__core__DOT__mem_stage__DOT__rr_pc);
+//  }
+
+    int rd = tb->m_core->cs3220_syn__DOT__core__DOT__decode_rd;
+    int rs = tb->m_core->cs3220_syn__DOT__core__DOT__decode_rs;
+    int rt = tb->m_core->cs3220_syn__DOT__core__DOT__decode_rt;
+    if (((rs == last_rd[0] && last_rd[0] != 0) || (rt == last_rd[0] && last_rd[0] != 0))
+        || ((rs == last_rd[1] && last_rd[1] != 0) || (rt == last_rd[1] && last_rd[1] != 0))) {
+      if (!tb->m_core->cs3220_syn__DOT__core__DOT__decode_stall) {
+        c2_conflicts++;
+      }
+    }
+
+    last_rd[1] = last_rd[0];
+    last_rd[0] = rd;
+
+
+    if (tb->m_core->cs3220_syn__DOT__core__DOT__rr__DOT__conflict) {
+      conflict_count++;
+    }
+
+    if (tb->m_core->cs3220_syn__DOT__core__DOT__mem_stall) {
+      mem_stall_count++;
+    }
+    if (tb->m_core->cs3220_syn__DOT__core__DOT__mem_stage__DOT__wb_stall) {
+      bus_stall++;
+    }
+
+    mem_stages[tb->m_core->cs3220_syn__DOT__core__DOT__mem_stage__DOT__current_state]++;
+
+    if (tb->m_core->cs3220_syn__DOT__core__DOT__mem_stage__DOT__mem_addr != 0 &&
+        tb->m_core->cs3220_syn__DOT__core__DOT__mem_stage__DOT__start_tx) {
+      mem_addrs[tb->m_core->cs3220_syn__DOT__core__DOT__mem_stage__DOT__mem_addr]++;
+    }
+
     if (tb->m_core->cs3220_syn__DOT__seg__DOT__internal_data != last_seg) {
       last_seg = tb->m_core->cs3220_syn__DOT__seg__DOT__internal_data;
       printf("SEG: 0x%x\n", last_seg);
-    }
 
-    if (tb->m_core->cs3220_syn__DOT__o_leds != last_led) {
-      last_led = tb->m_core->cs3220_syn__DOT__o_leds;
-      printf("LED: 0x%x\n", last_led);
-      if (last_led != 0xf && last_led != 0) {
-
-        for (int i = 0; i < 16; i++) {
-          printf("%d\n", tb->m_core->cs3220_syn__DOT__dmem__DOT__memory[0x1000/4 + i]);
-        }
-
+      if (last_seg == 0xf1) {
         break;
       }
     }
+//
+//    if (tb->m_core->cs3220_syn__DOT__o_leds != last_led) {
+//      last_led = tb->m_core->cs3220_syn__DOT__o_leds;
+//      printf("LED: 0x%x\n", last_led);
+//      if (last_led != 0xf && last_led != 0) {
+//
+//        for (int i = 0; i < 16; i++) {
+//          printf("%d\n", tb->m_core->cs3220_syn__DOT__dmem__DOT__memory[0x1000/4 + i]);
+//        }
+//
+//        break;
+//      }
+//    }
+
 
 //    if (tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__next_pc == tb->m_core->cs3220_syn__DOT__core__DOT__fetch__DOT__r_pc)
 //      break;
   }
+
+  printf("Total Cycles: %lu\n", tb->m_tickcount);
+  printf("Exec Pipeline Conflict %%: %f\n", 100 * float(conflict_count) / tb->m_tickcount);
+
+  printf("Pipeline C2 conflicts: %%: %f   %u\n", 100 * float(c2_conflicts) / tb->m_tickcount, c2_conflicts);
+
+  printf("Mem Stall %%: %f   %u\n", 100 * float(mem_stall_count) / tb->m_tickcount, mem_stall_count);
+  printf("Bus Stall %%: %f\n", 100 * float(bus_stall) / tb->m_tickcount);
+
+  printf("Mem stages:");
+  for (int i = 0; i < mem_stages.size(); i++) {
+    printf(", %d", mem_stages[i]);
+  }
+  printf("\n");
+
+
+  std::vector<uint32_t> keys;
+  for (auto it = mem_addrs.begin(); it != mem_addrs.end(); it++) {
+    keys.push_back(it->first);
+  }
+
+  std::sort(keys.begin(), keys.end());
+
+  for (auto key : keys) {
+    printf("0x%x: %u\n", key, mem_addrs[key]);
+  }
+
 
 //  printf("Total Branch: %d, miss:%d, pecent: %%%.4f", branch_cnt, branch_miss_cnt, ((double)branch_miss_cnt*100)/branch_cnt);
 

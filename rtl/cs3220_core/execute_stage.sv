@@ -35,6 +35,7 @@ module execute_stage(
 );
 
     localparam internal_pipeline=1;
+    localparam internal_pipeline_shift=1;
 
     reg inferred_halt;
     wire is_eq, is_lt, is_le, is_ne, is_gt, is_gte;
@@ -58,7 +59,7 @@ module execute_stage(
 
     reg do_jump;
 
-    wire pipeline_stall = (out_rd != 0 && ((out_rd == rr_rs) || (out_rd == rr_rt)));
+    wire pipeline_stall = 0; //(out_rd != 0 && ((out_rd == rr_rs) || (out_rd == rr_rt)));
 
     assign exec_stall = inferred_halt || pipeline_stall;
     assign exec_flush = exec_ld_pc;
@@ -83,7 +84,7 @@ module execute_stage(
         .WIDTH(32),
         .WIDTHDIST(5),
         .TYPE("ARITHMETIC"),
-        .PIPELINE(internal_pipeline)
+        .PIPELINE(internal_pipeline_shift)
     ) shifter(
         .clock(i_clk),
         .aclr(0),
@@ -256,7 +257,7 @@ module execute_stage(
 
     wire out_op_jal;
     compat_const_eq #(
-        .WIDTH(32),
+        .WIDTH(6),
         .PIPELINE(internal_pipeline)
     ) out_op_jal_delay (
         .clock(i_clk),
@@ -269,7 +270,7 @@ module execute_stage(
 
     wire out_op_zero;
     compat_const_eq #(
-        .WIDTH(32),
+        .WIDTH(6),
         .PIPELINE(internal_pipeline)
     ) out_op_zero_delay (
         .clock(i_clk),
@@ -417,7 +418,7 @@ module execute_stage(
             exec_br_origin <= out_pc;
 
             if (is_jump && (do_jump ? (out_predicted_pc != branch_target_pc) : !out_next_is_cont))
-                flush_count <= 5'b11;
+                flush_count <= 6'b11;
             else
                 flush_count <= (flush_count >> 1);
 

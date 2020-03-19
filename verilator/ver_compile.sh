@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-verilator --cc -Wall --trace -Mdir obj_dir -public \
+verilator --cc -Wall --trace -Mdir obj_dir -public -Wno-UNUSED -Wno-UNDRIVEN \
   -I../rtl/cs3220_core \
   -I../rtl/memory \
   -I../rtl/ \
