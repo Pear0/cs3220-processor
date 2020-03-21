@@ -14,6 +14,9 @@ module perf_counter64#(
     perf_if perf
 );
 
+
+`ifdef ENABLE_PERF
+
     reg [63:0] counter;
     initial counter = 0;
 
@@ -43,5 +46,12 @@ module perf_counter64#(
             end
         end
     end
+`else
+
+    assign perf.data = 0;
+    assign perf.ack = 0;
+    assign perf.stall = 0;
+
+`endif
 
 endmodule: perf_counter64

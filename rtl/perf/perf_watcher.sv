@@ -9,6 +9,7 @@ module perf_watcher#(
     perf_if perf
 );
 
+`ifdef ENABLE_PERF
     localparam S_IDLE=0;
     localparam S_STALLED=1;
     localparam S_WAITING=2;
@@ -62,5 +63,12 @@ module perf_watcher#(
 
         end
     end
+`else
+
+    assign data = 0;
+    assign perf.addr = 0;
+    assign perf.stb = 0;
+
+`endif
 
 endmodule: perf_watcher

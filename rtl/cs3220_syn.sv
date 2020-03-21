@@ -21,13 +21,20 @@ module cs3220_syn
 
     perf_if main_perf();
 
+    // `define ENABLE_PERF 1
+
     wire show_perf_counter;
+`ifdef ENABLE_PERF
     assign show_perf_counter = i_switches[8:0] != 0;
+`else
+    assign show_perf_counter = 0;
+`endif
     wire [31:0] perf_data;
 
     wire [31:0] displayed_perf_data = {16'b0, i_switches[0] ? perf_data[31:16] : perf_data[15:0]};
     localparam perf_disp_en = 6'b1111;
 
+`ifdef ENABLE_PERF
     perf_watcher watcher(
         .i_clk,
         .i_reset,
@@ -37,7 +44,9 @@ module cs3220_syn
 
         .perf(main_perf)
     );
-
+`else
+    assign perf_data = 0;
+`endif
 
 	wire i_clk;
 	wire locked;

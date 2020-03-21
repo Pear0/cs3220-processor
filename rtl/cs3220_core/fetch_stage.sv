@@ -1,5 +1,9 @@
 `default_nettype none
 
+/*
+ * Major changes to this stage include the branch prediction logic.
+ */
+
 module fetch_stage(
     input wire i_clk, i_reset,
 

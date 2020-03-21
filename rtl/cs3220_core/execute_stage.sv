@@ -1,6 +1,18 @@
 `default_nettype none
 `include "opcodes.sv"
 
+/*
+ * Major changes to this module include pipelining the module to take 2 cycles per instruction
+ * and support two instructions in-flight at one time (as long as they do not have a data
+ * dependency). This helps improve timing because it is difficult to pass 130 MHz on a Cyclone V
+ * when a 32 bit barrel shift must be done in one cycle.
+ *
+ * This module makes heavy use of my compat_* modules that abstract explicit Altera IP
+ * instantiations behind vendor detection and fallback implementations (that may still be
+ * inferrable) for Verilator and other vendors.
+ */
+
+
 module execute_stage(
     input wire i_clk, i_reset,
 

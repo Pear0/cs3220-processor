@@ -1,6 +1,12 @@
 `default_nettype none
 `include "opcodes.sv"
 
+/*
+ * This is version 2 of our memory stage that includes the data memory within this stage
+ * rather than treating memory as a normal bus device. This more than halves typical memory
+ * read/write operations because we have no cache.
+ */
+
 module memory_stage2(
     input wire i_clk, i_reset,
     input wire writeback_stall, writeback_flush,
