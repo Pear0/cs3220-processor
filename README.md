@@ -2,6 +2,9 @@
 
 Created by Yaotian Feng and Will Gulian
 
+See [this report](docs/will_report.pdf) for pipelining and optimization explanations.
+
+
 ## Folder Structure
 
  * rtl/ - Verilog hardware implementation
